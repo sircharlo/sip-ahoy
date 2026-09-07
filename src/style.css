@@ -453,7 +453,6 @@ select {
 }
 .badge.alcoholic { color: var(--alcoholic); border-color: var(--alcoholic); }
 .badge.nonalcoholic { color: var(--nonalcoholic); border-color: var(--nonalcoholic); }
-.badge.premium { color: #b8860b; border-color: #b8860b; }
 .badge.plus { color: var(--accent); border-color: var(--accent); }
 .badge.premier { color: var(--premier); border-color: var(--premier); }
 

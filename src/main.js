@@ -28,7 +28,6 @@ const state = {
   ingredients: new Set(),
   alcoholic: 'all', // all | yes | no
   pkg: 'all', // all | plus | premier | none
-  premiumOnly: false,
   minPrice: null,
   maxPrice: null,
   sort: 'relevance',
@@ -288,11 +287,6 @@ function buildFilters(items) {
     <div class="chip-row" id="selectedIngredientChips"></div>
     <div class="chip-row" id="ingredientChips"></div>
 
-    <h2>Special</h2>
-    <div class="chip-row">
-      <button class="chip" id="premiumChip" type="button">⭐ Premium / Love Line only <span class="count"></span></button>
-    </div>
-
     <h2>Sort by</h2>
     <select id="sortSelect" aria-label="Sort results by">
       <option value="relevance">Relevance</option>
@@ -331,13 +325,6 @@ function wireEvents() {
         state.alcoholic = value;
         document.querySelectorAll('#alcoholChips .chip').forEach((c) => c.classList.toggle('active', c.dataset.value === value));
       }
-      state.page = 1;
-      render();
-      return;
-    }
-    if (e.target.id === 'premiumChip') {
-      state.premiumOnly = !state.premiumOnly;
-      e.target.classList.toggle('active', state.premiumOnly);
       state.page = 1;
       render();
     }
@@ -429,7 +416,6 @@ function resetFilters() {
   state.ingredients.clear();
   state.alcoholic = 'all';
   state.pkg = 'all';
-  state.premiumOnly = false;
   state.minPrice = null;
   state.maxPrice = null;
   state.sort = 'relevance';
@@ -483,7 +469,6 @@ function matchesFiltersExcept(item, except) {
     if (state.pkg === 'premier' && item.package !== 'plus' && item.package !== 'premier') return false;
     if (state.pkg === 'none' && item.package) return false;
   }
-  if (except !== 'premiumOnly' && state.premiumOnly && !item.premium) return false;
   if (except !== 'price') {
     if (state.minPrice !== null && (item.price === null || item.price < state.minPrice)) return false;
     if (state.maxPrice !== null && (item.price === null || item.price > state.maxPrice)) return false;
@@ -501,7 +486,6 @@ function updateFacetCounts() {
   const venueCounts = new Map();
   let alcYes = 0, alcNo = 0, alcAll = 0;
   let pkgPlus = 0, pkgPremier = 0, pkgNone = 0, pkgAll = 0;
-  let premiumCount = 0;
 
   for (const item of ALL_ITEMS) {
     if (matchesFiltersExcept(item, 'types')) typeCounts.set(item.type, (typeCounts.get(item.type) || 0) + 1);
@@ -522,7 +506,6 @@ function updateFacetCounts() {
       if (item.package === 'plus' || item.package === 'premier') pkgPremier++;
       if (!item.package) pkgNone++;
     }
-    if (matchesFiltersExcept(item, 'premiumOnly') && item.premium) premiumCount++;
   }
 
   const setCount = (chip, n) => {
@@ -540,7 +523,6 @@ function updateFacetCounts() {
   setCount(document.querySelector('#alcoholChips .chip[data-value="all"]'), alcAll);
   setCount(document.querySelector('#alcoholChips .chip[data-value="yes"]'), alcYes);
   setCount(document.querySelector('#alcoholChips .chip[data-value="no"]'), alcNo);
-  setCount(document.getElementById('premiumChip'), premiumCount);
 
   const pkgSelect = document.getElementById('pkgSelect');
   if (pkgSelect) {
@@ -640,7 +622,6 @@ function cardHtml(item) {
   badges.push(`<span class="badge">${TYPE_LABELS[item.type] || item.type}</span>`);
   if (item.package === 'plus') badges.push(`<span class="badge plus">Princess Plus</span>`);
   if (item.package === 'premier') badges.push(`<span class="badge premier">Princess Premier</span>`);
-  if (item.premium) badges.push(`<span class="badge premium">⭐ Premium</span>`);
   if (item.region) badges.push(`<span class="badge">${escapeHtml(item.region)} only</span>`);
 
   const venueLinks = item.venues
