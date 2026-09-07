@@ -168,6 +168,8 @@ function shellHtml() {
       </main>
     </div>
     <footer class="app-footer">
+      This app was built with AI (Claude), which also read every drink off the source menu
+      photos — occasional misreads are possible; use 🚩 report on any drink to flag one.<br>
       Prices and menus are illustrative and subject to change onboard — always confirm at the bar.
       Source: shinecruise.com Princess Cruises drink menu photos.
     </footer>

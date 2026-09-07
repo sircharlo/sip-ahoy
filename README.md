@@ -4,6 +4,13 @@ A small single-page app for finding drinks across every bar and restaurant menu 
 
 The data was built by scraping the menu photos published at [shinecruise.com/princess-cruises-drinks-menu-prices](https://shinecruise.com/princess-cruises-drinks-menu-prices) (62 menu photos across 32 venues) and transcribing every item with vision — no OCR library, just careful reading of each photo into structured JSON.
 
+> **AI disclaimer:** This app's code and this transcribed dataset were built with AI (Claude).
+> Every drink's name, price, and ingredients were read off the source menu photos by an AI vision
+> model, not typed in by hand or run through OCR software — so while it's been spot-checked and
+> corrected where errors were found, occasional misreads are possible. Please verify anything that
+> matters (price, allergens, availability) at the actual bar, and use the 🚩 **report** button on
+> any drink to flag something wrong.
+
 ## Project layout
 
 ```
