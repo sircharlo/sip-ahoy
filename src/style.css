@@ -16,6 +16,13 @@
   --alcoholic: #9c4a0d;
   --nonalcoholic: #1b7a4d;
   --premier: #7a3fc9;
+  /* Warm "tropical sunset" accent for CTAs and decoration, kept separate from --accent (blue)
+     so the two never compete: blue is structural/brand, sunset invites a tap. --sunset is
+     deep enough to pass 4.5:1 with white text (--accent-contrast); --sunset-soft is brighter
+     and decoration-only (no text ever sits on it). */
+  --sunset: #c2410c;
+  --sunset-soft: #ff8a5c;
+  --font-display: 'Baloo 2', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -36,6 +43,8 @@
     --alcoholic: #e2984f;
     --nonalcoholic: #4fd996;
     --premier: #c39cf0;
+    --sunset: #ff9f5b;
+    --sunset-soft: #ffb37a;
   }
 }
 
@@ -56,6 +65,8 @@
   --alcoholic: #e2984f;
   --nonalcoholic: #4fd996;
   --premier: #c39cf0;
+  --sunset: #ff9f5b;
+  --sunset-soft: #ffb37a;
 }
 
 * { box-sizing: border-box; }
@@ -90,8 +101,27 @@ button {
   top: 0;
   z-index: 20;
   background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 16px 12px;
+  padding: 14px 16px 20px;
+  overflow: hidden;
+}
+
+/* A little wave instead of a plain border — cheap to render (a CSS mask, not an image) and
+   theme-aware since the gradient uses the live custom properties, not baked-in colors. */
+.app-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 8px;
+  background: linear-gradient(90deg, var(--accent), var(--sunset-soft));
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='8' viewBox='0 0 40 8'%3E%3Cpath d='M0 4 Q10 -2 20 4 T40 4 V8 H0 Z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='8' viewBox='0 0 40 8'%3E%3Cpath d='M0 4 Q10 -2 20 4 T40 4 V8 H0 Z'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+  -webkit-mask-size: 40px 8px;
+  mask-size: 40px 8px;
+  pointer-events: none;
 }
 
 .app-header__top {
@@ -116,9 +146,15 @@ button {
 }
 
 .app-header h1 {
-  font-size: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
   margin: 0;
   letter-spacing: -0.01em;
+  background: linear-gradient(90deg, var(--accent), var(--sunset));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .app-header .tagline {
@@ -361,6 +397,25 @@ select {
 }
 .reset-btn:hover { color: var(--text); border-color: var(--text-dim); }
 
+.load-more-btn {
+  width: auto;
+  padding: 11px 28px;
+  border-radius: 999px;
+  border: none;
+  /* Solid, not the lighter --sunset-soft gradient used for decoration elsewhere: --sunset is
+     verified >=4.5:1 against --accent-contrast in both themes; --sunset-soft on its own isn't,
+     so it never sits directly under button text. */
+  background: var(--sunset);
+  color: var(--accent-contrast);
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .load-more-btn { transition: transform 0.12s ease; }
+  .load-more-btn:hover { transform: translateY(-2px); }
+}
+
 /* ---------- Results ---------- */
 
 .results-header {
@@ -389,6 +444,22 @@ select {
   gap: 6px;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(20, 30, 50, 0.1), 0 10px 24px rgba(20, 30, 50, 0.1);
+  }
+  .chip {
+    transition: transform 0.1s ease;
+  }
+  .chip:hover {
+    transform: translateY(-1px);
+  }
+}
+
 .card__top {
   display: flex;
   justify-content: space-between;
@@ -397,8 +468,9 @@ select {
 }
 
 .card__name {
-  font-size: 1.02rem;
-  font-weight: 650;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
   line-height: 1.25;
   margin: 0;
 }

@@ -676,7 +676,7 @@ function render() {
 
   const loadMoreWrap = document.getElementById('loadMoreWrap');
   if (visible.length < filtered.length) {
-    loadMoreWrap.innerHTML = `<button class="reset-btn" id="loadMoreBtn" style="width:auto; padding:10px 24px;" type="button">Show more (${filtered.length - visible.length} left)</button>`;
+    loadMoreWrap.innerHTML = `<button class="load-more-btn" id="loadMoreBtn" type="button">Show more (${filtered.length - visible.length} left)</button>`;
     document.getElementById('loadMoreBtn').addEventListener('click', () => {
       state.page++;
       render();
