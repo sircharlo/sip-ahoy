@@ -65,6 +65,8 @@ html, body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
+body.no-scroll { overflow: hidden; }
+
 #app { min-height: 100vh; display: flex; flex-direction: column; }
 
 a { color: var(--accent); }
@@ -324,6 +326,8 @@ select {
   padding: 0;
 }
 
+.flag-btn:hover { color: var(--alcoholic); }
+
 .card__desc {
   font-size: 0.85rem;
   color: var(--text-dim);
@@ -423,15 +427,22 @@ select {
   .filters {
     position: fixed;
     inset: 0;
-    top: 0;
+    /* Explicit height, not just inset: a fixed+flex-column container otherwise
+       hugs its content instead of resolving to the viewport height. */
+    height: 100vh;
+    height: 100dvh;
     max-height: none;
     border-radius: 0;
     z-index: 50;
     display: none;
+    /* Close/reset stay pinned; only the filter list in between scrolls. */
+    flex-direction: column;
+    overflow: hidden;
   }
-  .filters.open { display: block; }
+  .filters.open { display: flex; }
   .filters-close {
     display: block;
+    flex: 0 0 auto;
     margin-left: auto;
     background: var(--surface-2);
     border: 1px solid var(--border);
@@ -439,6 +450,14 @@ select {
     width: 32px;
     height: 32px;
   }
+  #filtersBody {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 12px;
+  }
+  .filters .reset-btn { flex: 0 0 auto; }
 }
 
 @media (min-width: 861px) {

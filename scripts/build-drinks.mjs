@@ -15,8 +15,21 @@ const OUTPUT_PATH = path.join(ROOT, 'public', 'data', 'drinks.json');
 
 const VALID_TYPES = new Set(['cocktail', 'mocktail', 'spirit', 'wine', 'beer', 'cider', 'coffee', 'tea', 'soda', 'dessert', 'other']);
 
+// Princess doesn't print a per-item Plus/Premier flag consistently across menus, so instead
+// of trusting each menu's own formatting we derive package inclusion from a fleet-wide rule:
+// Plus covers drinks $15 and under, Premier covers everything Plus does plus $15.01-$20.
+// (Premier is a superset of Plus, so "plus" already implies "also under premier".)
+const PLUS_MAX = 15;
+const PREMIER_MAX = 20;
+
+// Accent-fold first so transcription inconsistencies like "Rosé" vs "Rose" between
+// batches (different agents, same wine) still land in the same dedup/slug bucket.
+function foldAccents(s) {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
 function slugify(s) {
-  return s
+  return foldAccents(s)
     .toLowerCase()
     .replace(/['’]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
@@ -27,6 +40,22 @@ function coerceNumber(v) {
   if (v === null || v === undefined || v === '') return null;
   const n = typeof v === 'number' ? v : Number(String(v).replace(/[^0-9.]/g, ''));
   return Number.isFinite(n) ? n : null;
+}
+
+function packageFromPrice(price) {
+  if (price === null || price === undefined) return null;
+  if (price <= PLUS_MAX) return 'plus';
+  if (price <= PREMIER_MAX) return 'premier';
+  return null;
+}
+
+// A handful of menus explicitly mark an item as a Premier-only perk regardless of its low
+// price (e.g. Coffee & Cones granitas: "$8, complimentary for guests with Princess Premier" —
+// no mention of Plus). Only fires on genuine positive inclusion language, not on "Beyond"/
+// "not included with Plus or Premier" notes, which always mention Plus too and are left alone.
+function isPremierOnlyOverride(notes) {
+  if (!notes) return false;
+  return /complimentary for guests with princess premier/i.test(notes) && !/\bplus\b/i.test(notes);
 }
 
 function main() {
@@ -59,13 +88,11 @@ function main() {
     for (const item of parsed) raw.push({ ...item, _batch: file });
   }
 
-  const seenIds = new Map();
-  const seenDupeKeys = new Map(); // (venue, name, price) -> true duplicate photo/listing
-  const missingImages = new Set();
   const warnings = [];
-  const duplicatesDropped = [];
-  const items = [];
+  const missingImages = new Set();
 
+  // Phase 1: normalize each raw record (still one per venue listing).
+  const records = [];
   for (const item of raw) {
     if (!item.name || !item.venueSlug) {
       warnings.push(`Skipped item with missing name/venueSlug in ${item._batch}: ${JSON.stringify(item).slice(0, 120)}`);
@@ -77,30 +104,12 @@ function main() {
     const price = coerceNumber(item.price);
     const priceBottle = coerceNumber(item.priceBottle);
 
-    // Same venue + same name + same price is almost certainly the same drink seen twice
-    // (e.g. two source photos of the same physical menu page) rather than a coincidence.
-    const dupeKey = `${item.venueSlug}|${slugify(item.name)}|${price}`;
-    if (seenDupeKeys.has(dupeKey)) {
-      duplicatesDropped.push(`${item.venue} / ${item.name} (${item._batch}, dup of ${seenDupeKeys.get(dupeKey)})`);
-      continue;
-    }
-    seenDupeKeys.set(dupeKey, item._batch);
-
-    let baseId = `${item.venueSlug}-${slugify(item.name)}`;
-    let id = baseId;
-    let n = 2;
-    while (seenIds.has(id)) {
-      id = `${baseId}-${n++}`;
-    }
-    seenIds.set(id, true);
-
     if (item.sourceImage) {
       const localPath = path.join(IMAGES_DIR, item.sourceImage.replace(/^images\//, ''));
       if (existsSync(IMAGES_DIR) && !existsSync(localPath)) missingImages.add(item.sourceImage);
     }
 
-    items.push({
-      id,
+    records.push({
       name: String(item.name).trim(),
       venue: item.venue,
       venueSlug: item.venueSlug,
@@ -112,7 +121,6 @@ function main() {
       price,
       priceText: item.priceText || (price !== null ? `$${price.toFixed(2)}` : null),
       priceBottle,
-      package: item.package === 'plus' || item.package === 'premier' ? item.package : null,
       premium: Boolean(item.premium),
       alcoholic: item.alcoholic !== false,
       region: item.region || null,
@@ -121,19 +129,95 @@ function main() {
     });
   }
 
+  // A few drink names are reused fleet-wide for genuinely different recipes that happen to
+  // share a name, type, and price by coincidence — verified by hand via scripts/_audit-merges.mjs
+  // (a token-overlap similarity check across every multi-venue group). These must NOT merge.
+  const FORCE_SPLIT_KEYS = new Set([
+    `${slugify("Captain's Bounty")}|11|cocktail`, // Standard Bar: Bacardi/Kraken rums + Coca-Cola. Crab Shack: Sailor Jerry/Cruzan rums + pineapple/sweet-sour.
+    `${slugify('Passion Lilly')}|14|cocktail`, // Bellini's: Montenegro Amaro + vermouth. Cascades: vanilla vodka + lychee + prosecco.
+  ]);
+
+  // Phase 2: group identical drinks (same name + price + recipe) served at multiple venues —
+  // e.g. "24k Margarita" is poured at Wheelhouse, The MIX, Bellini's, Crooners, etc. identically.
+  // Matched on name+price+type rather than the full description text: two independent
+  // transcriptions of the same physical drink can word the recipe slightly differently
+  // ("Grand Marnier" vs "Grand Marnier float"), but `type` still guards against merging a
+  // cocktail with an unrelated mocktail that happens to share a name and price.
+  const groups = new Map();
+  for (const rec of records) {
+    let key = `${slugify(rec.name)}|${rec.price}|${rec.type}`;
+    if (FORCE_SPLIT_KEYS.has(key)) key += `|${rec.venueSlug}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(rec);
+  }
+
+  const seenIds = new Map();
+  const items = [];
+
+  for (const group of groups.values()) {
+    const first = group[0];
+
+    const venues = [];
+    const seenVenueSlugs = new Set();
+    for (const rec of group) {
+      if (seenVenueSlugs.has(rec.venueSlug)) continue; // same drink photographed twice at the same venue
+      seenVenueSlugs.add(rec.venueSlug);
+      venues.push({ venue: rec.venue, venueSlug: rec.venueSlug, venueType: rec.venueType, sourceImage: rec.sourceImage });
+    }
+    venues.sort((a, b) => a.venue.localeCompare(b.venue));
+
+    let pkg = packageFromPrice(first.price);
+    if (group.some((rec) => isPremierOnlyOverride(rec.notes))) pkg = 'premier';
+
+    const notes = group.map((rec) => rec.notes).find(Boolean) || null;
+
+    const priceSuffix = first.price !== null ? `-${first.price}` : '';
+    let baseId = `${slugify(first.name)}${priceSuffix}`;
+    let id = baseId;
+    let n = 2;
+    while (seenIds.has(id)) id = `${baseId}-${n++}`;
+    seenIds.set(id, true);
+
+    items.push({
+      id,
+      name: first.name,
+      venues,
+      type: first.type,
+      category: first.category,
+      description: first.description,
+      ingredients: first.ingredients,
+      price: first.price,
+      priceText: first.priceText,
+      priceBottle: first.priceBottle,
+      package: pkg,
+      premium: group.some((rec) => rec.premium),
+      alcoholic: first.alcoholic,
+      region: first.region,
+      notes,
+    });
+  }
+
+  items.sort((a, b) => a.name.localeCompare(b.name));
+
   writeFileSync(OUTPUT_PATH, JSON.stringify(items, null, 2));
 
-  console.log(`\nWrote ${items.length} items to ${path.relative(ROOT, OUTPUT_PATH)}`);
+  const totalListings = records.length;
+  const mergedAway = totalListings - items.length;
+  console.log(`\nWrote ${items.length} distinct drinks to ${path.relative(ROOT, OUTPUT_PATH)} (from ${totalListings} menu listings, ${mergedAway} merged as duplicates/cross-venue repeats)`);
+
+  const multiVenue = items.filter((it) => it.venues.length > 1).sort((a, b) => b.venues.length - a.venues.length);
+  console.log(`\n${multiVenue.length} drinks appear at more than one venue. Top 10:`);
+  multiVenue.slice(0, 10).forEach((it) => console.log(`  ${it.name} (${it.venues.length} venues): ${it.venues.map((v) => v.venue).join(', ')}`));
 
   const byVenue = new Map();
-  for (const it of items) byVenue.set(it.venue, (byVenue.get(it.venue) || 0) + 1);
-  console.log(`\nVenues (${byVenue.size}):`);
+  for (const it of items) for (const v of it.venues) byVenue.set(v.venue, (byVenue.get(v.venue) || 0) + 1);
+  console.log(`\nVenues (${byVenue.size}), drinks available at each:`);
   for (const [v, c] of [...byVenue.entries()].sort()) console.log(`  ${v}: ${c}`);
 
-  if (duplicatesDropped.length) {
-    console.log(`\n${duplicatesDropped.length} duplicate(s) dropped (same venue+name+price seen twice):`);
-    duplicatesDropped.forEach((d) => console.log(`  - ${d}`));
-  }
+  const packageCounts = { plus: 0, premier: 0, none: 0 };
+  for (const it of items) packageCounts[it.package || 'none']++;
+  console.log(`\nPackage inclusion: Plus ${packageCounts.plus}, Premier-only ${packageCounts.premier}, not included ${packageCounts.none}`);
+
   if (warnings.length) {
     console.log(`\n${warnings.length} warning(s):`);
     warnings.forEach((w) => console.log(`  - ${w}`));

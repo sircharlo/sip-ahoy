@@ -2,6 +2,8 @@ import './style.css';
 
 const DATA_URL = 'data/drinks.json';
 const PAGE_SIZE = 60;
+// Where "report an issue" files a prepopulated GitHub issue against.
+const GITHUB_REPO = 'sircharlo/discovery-princess-drink-finder';
 
 const TYPE_LABELS = {
   cocktail: 'Cocktail',
@@ -33,6 +35,7 @@ const state = {
 };
 
 let ALL_ITEMS = [];
+let ITEMS_BY_ID = new Map();
 let dataMinPrice = 0;
 let dataMaxPrice = 100;
 
@@ -63,9 +66,36 @@ function priceLabel(item) {
 }
 
 function buildSearchIndex(item) {
-  return [item.name, item.description, item.category, item.venue, (item.ingredients || []).join(' ')]
+  return [item.name, item.description, item.category, item.venues.map((v) => v.venue).join(' '), (item.ingredients || []).join(' ')]
     .join(' ')
     .toLowerCase();
+}
+
+function buildIssueUrl(item) {
+  const imageUrl = new URL(`data/${item.venues[0].sourceImage}`, window.location.href).href;
+  const venueNames = item.venues.map((v) => v.venue).join(', ');
+  const title = `Data issue: "${item.name}" at ${venueNames}`;
+  const { _id, _search, ...clean } = item;
+  const body = [
+    `**Drink:** ${item.name}`,
+    `**Venue(s):** ${venueNames}${item.category ? ` (${item.category})` : ''}`,
+    `**Price shown:** ${priceLabel(item)}`,
+    `**Item ID:** \`${item.id}\``,
+    `**Source menu photo:** ${imageUrl}`,
+    '',
+    '### What\'s wrong?',
+    '<!-- e.g. wrong price, wrong ingredients, wrong venue, drink no longer offered, etc. -->',
+    '',
+    '',
+    '<details><summary>Current data</summary>',
+    '',
+    '```json',
+    JSON.stringify(clean, null, 2),
+    '```',
+    '</details>',
+  ].join('\n');
+  const params = new URLSearchParams({ title, body, labels: 'data-correction' });
+  return `https://github.com/${GITHUB_REPO}/issues/new?${params.toString()}`;
 }
 
 async function init() {
@@ -87,9 +117,10 @@ async function init() {
 
   ALL_ITEMS = items.map((item, i) => ({
     ...item,
-    _id: item.id || `${item.venueSlug}-${i}`,
+    _id: item.id || `item-${i}`,
     _search: buildSearchIndex(item),
   }));
+  ITEMS_BY_ID = new Map(ALL_ITEMS.map((item) => [item._id, item]));
 
   const prices = ALL_ITEMS.map((i) => i.price).filter((p) => typeof p === 'number');
   dataMinPrice = Math.floor(Math.min(...prices));
@@ -144,9 +175,11 @@ function buildFilters(items) {
 
   for (const item of items) {
     typeCounts.set(item.type, (typeCounts.get(item.type) || 0) + 1);
-    venueTypeCounts.set(item.venueType, (venueTypeCounts.get(item.venueType) || 0) + 1);
-    if (!venueCounts.has(item.venue)) venueCounts.set(item.venue, { count: 0, venueType: item.venueType });
-    venueCounts.get(item.venue).count++;
+    for (const v of item.venues) {
+      venueTypeCounts.set(v.venueType, (venueTypeCounts.get(v.venueType) || 0) + 1);
+      if (!venueCounts.has(v.venue)) venueCounts.set(v.venue, { count: 0, venueType: v.venueType });
+      venueCounts.get(v.venue).count++;
+    }
     for (const ing of item.ingredients || []) {
       const key = ing.trim();
       if (!key || key.length < 3) continue;
@@ -335,16 +368,31 @@ function wireEvents() {
     render();
   });
 
-  document.getElementById('filtersToggle').addEventListener('click', () => {
+  const openFilters = () => {
     document.getElementById('filtersPanel').classList.add('open');
-  });
-  document.getElementById('filtersClose').addEventListener('click', () => {
+    document.body.classList.add('no-scroll');
+  };
+  const closeFilters = () => {
     document.getElementById('filtersPanel').classList.remove('open');
+    document.body.classList.remove('no-scroll');
+  };
+  document.getElementById('filtersToggle').addEventListener('click', openFilters);
+  document.getElementById('filtersClose').addEventListener('click', closeFilters);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeFilters();
   });
 
   document.getElementById('results').addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-view-image]');
-    if (btn) openImageModal(btn.dataset.viewImage, btn.dataset.viewCaption);
+    const viewBtn = e.target.closest('[data-view-image]');
+    if (viewBtn) {
+      openImageModal(viewBtn.dataset.viewImage, viewBtn.dataset.viewCaption);
+      return;
+    }
+    const flagBtn = e.target.closest('[data-flag-id]');
+    if (flagBtn) {
+      const item = ITEMS_BY_ID.get(flagBtn.dataset.flagId);
+      if (item) window.open(buildIssueUrl(item), '_blank', 'noopener');
+    }
   });
 }
 
@@ -364,8 +412,8 @@ function matchesFilters(item) {
     if (!words.every((w) => item._search.includes(w))) return false;
   }
   if (state.types.size && !state.types.has(item.type)) return false;
-  if (state.venueTypes.size && !state.venueTypes.has(item.venueType)) return false;
-  if (state.venues.size && !state.venues.has(item.venue)) return false;
+  if (state.venueTypes.size && !item.venues.some((v) => state.venueTypes.has(v.venueType))) return false;
+  if (state.venues.size && !item.venues.some((v) => state.venues.has(v.venue))) return false;
   if (state.ingredients.size) {
     const ings = item.ingredients || [];
     let any = false;
@@ -401,7 +449,7 @@ function sortItems(items) {
       arr.sort((a, b) => (b.price ?? -Infinity) - (a.price ?? -Infinity));
       break;
     case 'venue':
-      arr.sort((a, b) => a.venue.localeCompare(b.venue) || a.name.localeCompare(b.name));
+      arr.sort((a, b) => a.venues[0].venue.localeCompare(b.venues[0].venue) || a.name.localeCompare(b.name));
       break;
     default:
       arr.sort((a, b) => a.name.localeCompare(b.name));
@@ -418,8 +466,13 @@ function cardHtml(item) {
   if (item.premium) badges.push(`<span class="badge premium">⭐ Premium</span>`);
   if (item.region) badges.push(`<span class="badge">${escapeHtml(item.region)} only</span>`);
 
-  const imgUrl = `data/${item.sourceImage}`;
-  const caption = `${item.venue} — ${item.category || ''}`;
+  const venueLinks = item.venues
+    .map((v) => {
+      const imgUrl = `data/${v.sourceImage}`;
+      const caption = `${v.venue} — ${item.category || ''}`;
+      return `<button type="button" data-view-image="${escapeHtml(imgUrl)}" data-view-caption="${escapeHtml(caption)}" title="View menu photo from ${escapeHtml(v.venue)}">${escapeHtml(v.venue)}</button>`;
+    })
+    .join(', ');
 
   return `
     <article class="card">
@@ -428,9 +481,9 @@ function cardHtml(item) {
         <div class="card__price">${escapeHtml(priceLabel(item))}</div>
       </div>
       <div class="card__venue">
-        ${escapeHtml(item.venue)}${item.category ? ` · ${escapeHtml(item.category)}` : ''}
+        ${item.category ? `${escapeHtml(item.category)} · ` : ''}${venueLinks}
         &nbsp;&middot;&nbsp;
-        <button type="button" data-view-image="${escapeHtml(imgUrl)}" data-view-caption="${escapeHtml(caption)}">view menu photo</button>
+        <button type="button" class="flag-btn" data-flag-id="${escapeHtml(item._id)}" title="Report incorrect info for this drink">🚩 report</button>
       </div>
       ${item.description ? `<div class="card__desc">${escapeHtml(item.description)}</div>` : ''}
       ${item.notes ? `<div class="card__desc"><em>${escapeHtml(item.notes)}</em></div>` : ''}
