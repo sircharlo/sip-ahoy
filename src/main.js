@@ -1,9 +1,10 @@
 import './style.css';
+import { registerSW } from 'virtual:pwa-register';
 
 const DATA_URL = 'data/drinks.json';
 const PAGE_SIZE = 60;
 // Where "report an issue" files a prepopulated GitHub issue against.
-const GITHUB_REPO = 'sircharlo/discovery-princess-drink-finder';
+const GITHUB_REPO = 'sircharlo/sip-ahoy';
 
 const TYPE_LABELS = {
   cocktail: 'Cocktail',
@@ -38,6 +39,10 @@ let ALL_ITEMS = [];
 let ITEMS_BY_ID = new Map();
 let dataMinPrice = 0;
 let dataMaxPrice = 100;
+// Stable filter option lists, computed once from the full dataset — only their counts
+// (see updateFacetCounts) change as filters are applied, so the lists themselves don't
+// reorder or jump around while browsing.
+const FACET_OPTIONS = { ingredients: [] };
 
 const escapeHtml = (s) =>
   String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -135,9 +140,12 @@ function shellHtml() {
   return `
     <header class="app-header">
       <div class="app-header__top">
-        <div>
-          <h1>🍹 Princess Drink Finder</h1>
-          <div class="tagline">Search every bar &amp; restaurant drink menu on your Princess cruise</div>
+        <div class="app-header__brand">
+          <img src="icons/icon-192.png" alt="" class="app-logo" width="36" height="36" />
+          <div>
+            <h1>Sip Ahoy</h1>
+            <div class="tagline">Search every bar &amp; restaurant drink menu on your Princess cruise</div>
+          </div>
         </div>
         <button class="filters-toggle" id="filtersToggle" type="button">Filters</button>
       </div>
@@ -170,15 +178,14 @@ function shellHtml() {
 function buildFilters(items) {
   const typeCounts = new Map();
   const venueTypeCounts = new Map();
-  const venueCounts = new Map(); // venue -> {count, venueType}
+  const venueSet = new Map(); // venue -> venueType (first seen), just to know which venues exist
   const ingredientCounts = new Map();
 
   for (const item of items) {
     typeCounts.set(item.type, (typeCounts.get(item.type) || 0) + 1);
     for (const v of item.venues) {
       venueTypeCounts.set(v.venueType, (venueTypeCounts.get(v.venueType) || 0) + 1);
-      if (!venueCounts.has(v.venue)) venueCounts.set(v.venue, { count: 0, venueType: v.venueType });
-      venueCounts.get(v.venue).count++;
+      if (!venueSet.has(v.venue)) venueSet.set(v.venue, v.venueType);
     }
     for (const ing of item.ingredients || []) {
       const key = ing.trim();
@@ -187,15 +194,18 @@ function buildFilters(items) {
     }
   }
 
-  const topIngredients = [...ingredientCounts.entries()]
+  // These lists (which options exist, in what order) are fixed at load time — only their
+  // counts (rendered as empty <span class="count"> here) update live, in updateFacetCounts.
+  FACET_OPTIONS.ingredients = [...ingredientCounts.entries()]
     .filter(([, c]) => c >= 3)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 28)
-    .sort((a, b) => a[0].localeCompare(b[0]));
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([ing]) => ing);
 
-  const sortedVenues = [...venueCounts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-  const sortedTypes = [...typeCounts.entries()].sort((a, b) => b[1] - a[1]);
-  const sortedVenueTypes = [...venueTypeCounts.entries()].sort((a, b) => b[1] - a[1]);
+  const sortedVenues = [...venueSet.keys()].sort((a, b) => a.localeCompare(b));
+  const sortedTypes = [...typeCounts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
+  const sortedVenueTypes = [...venueTypeCounts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
 
   const body = document.getElementById('filtersBody');
   body.innerHTML = `
@@ -203,17 +213,17 @@ function buildFilters(items) {
     <div class="chip-row" id="typeChips">
       ${sortedTypes
         .map(
-          ([t, c]) =>
-            `<button class="chip" data-kind="type" data-value="${t}" type="button">${TYPE_LABELS[t] || t} <span class="count">${c}</span></button>`
+          (t) =>
+            `<button class="chip" data-kind="type" data-value="${t}" type="button">${TYPE_LABELS[t] || t} <span class="count"></span></button>`
         )
         .join('')}
     </div>
 
     <h2>Alcohol</h2>
     <div class="chip-row" id="alcoholChips">
-      <button class="chip active" data-kind="alcoholic" data-value="all" type="button">All</button>
-      <button class="chip" data-kind="alcoholic" data-value="yes" type="button">Alcoholic</button>
-      <button class="chip" data-kind="alcoholic" data-value="no" type="button">Non-alcoholic</button>
+      <button class="chip active" data-kind="alcoholic" data-value="all" type="button">All <span class="count"></span></button>
+      <button class="chip" data-kind="alcoholic" data-value="yes" type="button">Alcoholic <span class="count"></span></button>
+      <button class="chip" data-kind="alcoholic" data-value="no" type="button">Non-alcoholic <span class="count"></span></button>
     </div>
 
     <h2>Price</h2>
@@ -228,15 +238,15 @@ function buildFilters(items) {
       <option value="all">Any</option>
       <option value="plus">Included with Plus</option>
       <option value="premier">Included with Premier</option>
-      <option value="none">À la carte (not in a package)</option>
+      <option value="none">Not included in a package</option>
     </select>
 
     <h2>Venue type</h2>
     <div class="chip-row" id="venueTypeChips">
       ${sortedVenueTypes
         .map(
-          ([t, c]) =>
-            `<button class="chip" data-kind="venueType" data-value="${t}" type="button">${escapeHtml(t)} <span class="count">${c}</span></button>`
+          (t) =>
+            `<button class="chip" data-kind="venueType" data-value="${t}" type="button">${escapeHtml(t)} <span class="count"></span></button>`
         )
         .join('')}
     </div>
@@ -245,10 +255,10 @@ function buildFilters(items) {
     <div class="venue-list" id="venueList">
       ${sortedVenues
         .map(
-          ([v, info]) => `
+          (v) => `
         <label>
           <input type="checkbox" data-kind="venue" value="${escapeHtml(v)}" />
-          ${escapeHtml(v)} <span class="count">${info.count}</span>
+          ${escapeHtml(v)} <span class="count"></span>
         </label>`
         )
         .join('')}
@@ -256,17 +266,17 @@ function buildFilters(items) {
 
     <h2>Popular ingredients</h2>
     <div class="chip-row" id="ingredientChips">
-      ${topIngredients
+      ${FACET_OPTIONS.ingredients
         .map(
-          ([ing]) =>
-            `<button class="chip" data-kind="ingredient" data-value="${escapeHtml(ing)}" type="button">${escapeHtml(ing)}</button>`
+          (ing) =>
+            `<button class="chip" data-kind="ingredient" data-value="${escapeHtml(ing)}" type="button">${escapeHtml(ing)} <span class="count"></span></button>`
         )
         .join('')}
     </div>
 
     <h2>Special</h2>
     <div class="chip-row">
-      <button class="chip" id="premiumChip" type="button">⭐ Premium / Love Line only</button>
+      <button class="chip" id="premiumChip" type="button">⭐ Premium / Love Line only <span class="count"></span></button>
     </div>
 
     <h2>Sort by</h2>
@@ -406,15 +416,18 @@ function toggleSetChip(set, value, chipEl) {
   }
 }
 
-function matchesFilters(item) {
-  if (state.query) {
+// `except` skips one dimension's own constraint so callers can ask "how many results would
+// match if I also picked option X in dimension D" — i.e. all filters EXCEPT D itself. Used both
+// for the real result set (except: null) and for live per-option facet counts.
+function matchesFiltersExcept(item, except) {
+  if (except !== 'query' && state.query) {
     const words = state.query.split(/\s+/).filter(Boolean);
     if (!words.every((w) => item._search.includes(w))) return false;
   }
-  if (state.types.size && !state.types.has(item.type)) return false;
-  if (state.venueTypes.size && !item.venues.some((v) => state.venueTypes.has(v.venueType))) return false;
-  if (state.venues.size && !item.venues.some((v) => state.venues.has(v.venue))) return false;
-  if (state.ingredients.size) {
+  if (except !== 'types' && state.types.size && !state.types.has(item.type)) return false;
+  if (except !== 'venueTypes' && state.venueTypes.size && !item.venues.some((v) => state.venueTypes.has(v.venueType))) return false;
+  if (except !== 'venues' && state.venues.size && !item.venues.some((v) => state.venues.has(v.venue))) return false;
+  if (except !== 'ingredients' && state.ingredients.size) {
     const ings = item.ingredients || [];
     let any = false;
     for (const wanted of state.ingredients) {
@@ -425,15 +438,89 @@ function matchesFilters(item) {
     }
     if (!any) return false;
   }
-  if (state.alcoholic === 'yes' && !item.alcoholic) return false;
-  if (state.alcoholic === 'no' && item.alcoholic) return false;
-  if (state.pkg === 'plus' && item.package !== 'plus') return false;
-  if (state.pkg === 'premier' && item.package !== 'premier') return false;
-  if (state.pkg === 'none' && item.package) return false;
-  if (state.premiumOnly && !item.premium) return false;
-  if (state.minPrice !== null && (item.price === null || item.price < state.minPrice)) return false;
-  if (state.maxPrice !== null && (item.price === null || item.price > state.maxPrice)) return false;
+  if (except !== 'alcoholic') {
+    if (state.alcoholic === 'yes' && !item.alcoholic) return false;
+    if (state.alcoholic === 'no' && item.alcoholic) return false;
+  }
+  if (except !== 'pkg') {
+    // Premier includes everything Plus does, plus $15.01-$20 — so "Included with Premier"
+    // must match package "plus" too, not just the premier-only bracket.
+    if (state.pkg === 'plus' && item.package !== 'plus') return false;
+    if (state.pkg === 'premier' && item.package !== 'plus' && item.package !== 'premier') return false;
+    if (state.pkg === 'none' && item.package) return false;
+  }
+  if (except !== 'premiumOnly' && state.premiumOnly && !item.premium) return false;
+  if (except !== 'price') {
+    if (state.minPrice !== null && (item.price === null || item.price < state.minPrice)) return false;
+    if (state.maxPrice !== null && (item.price === null || item.price > state.maxPrice)) return false;
+  }
   return true;
+}
+
+function matchesFilters(item) {
+  return matchesFiltersExcept(item, null);
+}
+
+function updateFacetCounts() {
+  const typeCounts = new Map();
+  const venueTypeCounts = new Map();
+  const venueCounts = new Map();
+  const ingredientCounts = new Map();
+  let alcYes = 0, alcNo = 0, alcAll = 0;
+  let pkgPlus = 0, pkgPremier = 0, pkgNone = 0, pkgAll = 0;
+  let premiumCount = 0;
+
+  for (const item of ALL_ITEMS) {
+    if (matchesFiltersExcept(item, 'types')) typeCounts.set(item.type, (typeCounts.get(item.type) || 0) + 1);
+    if (matchesFiltersExcept(item, 'venueTypes')) {
+      for (const v of item.venues) venueTypeCounts.set(v.venueType, (venueTypeCounts.get(v.venueType) || 0) + 1);
+    }
+    if (matchesFiltersExcept(item, 'venues')) {
+      for (const v of item.venues) venueCounts.set(v.venue, (venueCounts.get(v.venue) || 0) + 1);
+    }
+    if (matchesFiltersExcept(item, 'ingredients')) {
+      for (const ing of FACET_OPTIONS.ingredients) {
+        if ((item.ingredients || []).some((x) => x.includes(ing))) ingredientCounts.set(ing, (ingredientCounts.get(ing) || 0) + 1);
+      }
+    }
+    if (matchesFiltersExcept(item, 'alcoholic')) {
+      alcAll++;
+      if (item.alcoholic) alcYes++;
+      else alcNo++;
+    }
+    if (matchesFiltersExcept(item, 'pkg')) {
+      pkgAll++;
+      if (item.package === 'plus') pkgPlus++;
+      if (item.package === 'plus' || item.package === 'premier') pkgPremier++;
+      if (!item.package) pkgNone++;
+    }
+    if (matchesFiltersExcept(item, 'premiumOnly') && item.premium) premiumCount++;
+  }
+
+  const setCount = (chip, n) => {
+    const span = chip.querySelector('.count');
+    if (span) span.textContent = (n || 0).toLocaleString();
+  };
+  document.querySelectorAll('#typeChips .chip').forEach((chip) => setCount(chip, typeCounts.get(chip.dataset.value)));
+  document.querySelectorAll('#venueTypeChips .chip').forEach((chip) => setCount(chip, venueTypeCounts.get(chip.dataset.value)));
+  document.querySelectorAll('#ingredientChips .chip').forEach((chip) => setCount(chip, ingredientCounts.get(chip.dataset.value)));
+  document.querySelectorAll('#venueList label').forEach((label) => {
+    const input = label.querySelector('input[type="checkbox"]');
+    const span = label.querySelector('.count');
+    if (input && span) span.textContent = (venueCounts.get(input.value) || 0).toLocaleString();
+  });
+  setCount(document.querySelector('#alcoholChips .chip[data-value="all"]'), alcAll);
+  setCount(document.querySelector('#alcoholChips .chip[data-value="yes"]'), alcYes);
+  setCount(document.querySelector('#alcoholChips .chip[data-value="no"]'), alcNo);
+  setCount(document.getElementById('premiumChip'), premiumCount);
+
+  const pkgSelect = document.getElementById('pkgSelect');
+  if (pkgSelect) {
+    pkgSelect.querySelector('option[value="all"]').textContent = `Any (${pkgAll.toLocaleString()})`;
+    pkgSelect.querySelector('option[value="plus"]').textContent = `Included with Plus (${pkgPlus.toLocaleString()})`;
+    pkgSelect.querySelector('option[value="premier"]').textContent = `Included with Premier (${pkgPremier.toLocaleString()})`;
+    pkgSelect.querySelector('option[value="none"]').textContent = `Not included in a package (${pkgNone.toLocaleString()})`;
+  }
 }
 
 function sortItems(items) {
@@ -500,6 +587,8 @@ function render() {
   const countEl = document.getElementById('resultCount');
   countEl.textContent = `${filtered.length.toLocaleString()} of ${ALL_ITEMS.length.toLocaleString()} drinks`;
 
+  updateFacetCounts();
+
   const results = document.getElementById('results');
   if (!filtered.length) {
     results.innerHTML = `<div class="empty-state">No drinks match your filters. Try loosening a filter or clearing your search.</div>`;
@@ -542,5 +631,24 @@ function openImageModal(src, caption) {
     }
   });
 }
+
+function showToast(message) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = message;
+  document.body.appendChild(el);
+  setTimeout(() => el.classList.add('toast--visible'), 10);
+  setTimeout(() => {
+    el.classList.remove('toast--visible');
+    setTimeout(() => el.remove(), 400);
+  }, 5000);
+}
+
+registerSW({
+  immediate: true,
+  onOfflineReady() {
+    showToast('✓ Saved for offline use — this app now works without wifi.');
+  },
+});
 
 init();

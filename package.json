@@ -1,5 +1,5 @@
 {
-  "name": "princess-drink-finder",
+  "name": "sip-ahoy",
   "version": "1.0.0",
   "description": "Searchable menu of Princess Cruises drinks — filter by name, ingredient, venue, price, and more.",
   "private": true,
@@ -13,6 +13,7 @@
     "audit-names": "node scripts/audit-names.mjs"
   },
   "devDependencies": {
-    "vite": "^6.3.1"
+    "vite": "^6.3.1",
+    "vite-plugin-pwa": "^1.3.0"
   }
 }

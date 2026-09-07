@@ -89,11 +89,23 @@ button {
 
 .app-header__top {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-logo {
+  border-radius: 8px;
+  flex: 0 0 auto;
+  display: block;
 }
 
 .app-header h1 {
@@ -417,6 +429,30 @@ select {
   padding: 20px;
   color: var(--text-dim);
   font-size: 0.75rem;
+}
+
+/* ---------- Toast ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translate(-50%, 20px);
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  max-width: calc(100vw - 32px);
+  text-align: center;
+}
+.toast--visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 /* ---------- Responsive ---------- */
