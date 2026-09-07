@@ -9,7 +9,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "fetch-menus": "node scripts/fetch-menus.mjs",
-    "build-drinks": "node scripts/build-drinks.mjs"
+    "build-drinks": "node scripts/build-drinks.mjs",
+    "audit-names": "node scripts/audit-names.mjs"
   },
   "devDependencies": {
     "vite": "^6.3.1"

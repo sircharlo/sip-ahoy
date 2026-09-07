@@ -206,7 +206,7 @@
     "notes": "Features award-winning Pantalones Tequila Organico (McConaughey brand)."
   },
   {
-    "id": "aberfeldy-12-yr-12",
+    "id": "aberfeldy-12-yo-12",
     "name": "Aberfeldy 12 Yr",
     "venues": [
       {
@@ -1788,7 +1788,7 @@
     "notes": null
   },
   {
-    "id": "bacardi-reserve-ocho",
+    "id": "bacardi-reserva-ocho",
     "name": "Bacardi Reserve Ocho",
     "venues": [
       {
@@ -2240,6 +2240,12 @@
     "name": "Baron de Rothschild Blanc de Blancs",
     "venues": [
       {
+        "venue": "Crown Grill",
+        "venueSlug": "crown-grill",
+        "venueType": "restaurant",
+        "sourceImage": "images/princess-crown-grill-bar-menus-01.jpg"
+      },
+      {
         "venue": "The Sanctuary",
         "venueSlug": "the-sanctuary",
         "venueType": "restaurant",
@@ -2282,30 +2288,6 @@
     "alcoholic": true,
     "region": null,
     "notes": null
-  },
-  {
-    "id": "barons-de-rothschild-blanc-de-blancs",
-    "name": "Barons de Rothschild Blanc de Blancs",
-    "venues": [
-      {
-        "venue": "Crown Grill",
-        "venueSlug": "crown-grill",
-        "venueType": "restaurant",
-        "sourceImage": "images/princess-crown-grill-bar-menus-01.jpg"
-      }
-    ],
-    "type": "wine",
-    "category": "Sparkling & Champagne",
-    "description": "",
-    "ingredients": [],
-    "price": null,
-    "priceText": "$195 (bottle)",
-    "priceBottle": 195,
-    "package": null,
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": "Champagne, FR. Bottle price only (no glass listed)."
   },
   {
     "id": "beefeater-9",
@@ -4441,34 +4423,6 @@
     "notes": "Menu heading reads 'Coffee Currents' (Lavazza), filed under Bellini's per assignment."
   },
   {
-    "id": "caballero-13-2",
-    "name": "Caballero",
-    "venues": [
-      {
-        "venue": "Coffee Currents",
-        "venueSlug": "coffee-currents",
-        "venueType": "cafe",
-        "sourceImage": "images/princess-coffee-currents-menu-01.jpg"
-      }
-    ],
-    "type": "coffee",
-    "category": "Spirited Coffees",
-    "description": "Lavazza Espresso, Amaretto, Cream",
-    "ingredients": [
-      "lavazza espresso",
-      "amaretto",
-      "cream"
-    ],
-    "price": 13,
-    "priceText": "$13.00",
-    "priceBottle": null,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
-  },
-  {
     "id": "cabernet-sauvignon-12",
     "name": "Cabernet Sauvignon",
     "venues": [
@@ -4603,25 +4557,7 @@
         "venueSlug": "international-cafe",
         "venueType": "cafe",
         "sourceImage": "images/princess-international-cafe-menu-01.jpg"
-      }
-    ],
-    "type": "coffee",
-    "category": "Coffee",
-    "description": "",
-    "ingredients": [],
-    "price": 4,
-    "priceText": "$4",
-    "priceBottle": null,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": false,
-    "region": null,
-    "notes": null
-  },
-  {
-    "id": "caffe-latte-4",
-    "name": "Caffè Latte",
-    "venues": [
+      },
       {
         "venue": "Sabatini's Italian Trattoria",
         "venueSlug": "sabatinis",
@@ -4630,7 +4566,7 @@
       }
     ],
     "type": "coffee",
-    "category": "Caffè",
+    "category": "Coffee",
     "description": "",
     "ingredients": [],
     "price": 4,
@@ -6670,7 +6606,7 @@
     "notes": null
   },
   {
-    "id": "chivas-regal-18-yr-20",
+    "id": "chivas-regal-18-yo-20",
     "name": "Chivas Regal 18 Yr",
     "venues": [
       {
@@ -7339,36 +7275,6 @@
     "notes": "Menu heading reads 'Coffee Currents' (Lavazza), filed under Bellini's per assignment."
   },
   {
-    "id": "coffee-negroni-15-2",
-    "name": "Coffee Negroni",
-    "venues": [
-      {
-        "venue": "Coffee Currents",
-        "venueSlug": "coffee-currents",
-        "venueType": "cafe",
-        "sourceImage": "images/princess-coffee-currents-menu-01.jpg"
-      }
-    ],
-    "type": "coffee",
-    "category": "Spirited Coffees",
-    "description": "Lavazza Espresso, Dry Gin, Campari, Red Vermouth, Orange",
-    "ingredients": [
-      "lavazza espresso",
-      "dry gin",
-      "campari",
-      "red vermouth",
-      "orange"
-    ],
-    "price": 15,
-    "priceText": "$15.00",
-    "priceBottle": null,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
-  },
-  {
     "id": "coffee-nichibotsu-17",
     "name": "Coffee Nichibotsu",
     "venues": [
@@ -7426,36 +7332,6 @@
     "alcoholic": true,
     "region": null,
     "notes": "Menu heading reads 'Coffee Currents' (Lavazza), filed under Bellini's per assignment."
-  },
-  {
-    "id": "coffee-spritz-13-2",
-    "name": "Coffee Spritz",
-    "venues": [
-      {
-        "venue": "Coffee Currents",
-        "venueSlug": "coffee-currents",
-        "venueType": "cafe",
-        "sourceImage": "images/princess-coffee-currents-menu-01.jpg"
-      }
-    ],
-    "type": "coffee",
-    "category": "Spirited Coffees",
-    "description": "Lavazza Espresso, Aperol, Amaretto, Orange, Soda",
-    "ingredients": [
-      "lavazza espresso",
-      "aperol",
-      "amaretto",
-      "orange",
-      "soda"
-    ],
-    "price": 13,
-    "priceText": "$13.00",
-    "priceBottle": null,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
   },
   {
     "id": "cointreau-9",
@@ -8539,7 +8415,7 @@
     "notes": null
   },
   {
-    "id": "dewars-12-yr-15",
+    "id": "dewars-12-yo-15",
     "name": "Dewar's 12 Yr",
     "venues": [
       {
@@ -9240,7 +9116,7 @@
     "notes": "Washington, USA"
   },
   {
-    "id": "domaines-barons-de-rothschild-legende-53",
+    "id": "domaines-baron-de-rothschild-legende-53",
     "name": "Domaines Barons de Rothschild 'Legende'",
     "venues": [
       {
@@ -10583,34 +10459,6 @@
     "alcoholic": true,
     "region": null,
     "notes": "Menu heading reads 'Coffee Currents' (Lavazza), filed under Bellini's per assignment."
-  },
-  {
-    "id": "espresso-43-15-2",
-    "name": "Espresso 43",
-    "venues": [
-      {
-        "venue": "Coffee Currents",
-        "venueSlug": "coffee-currents",
-        "venueType": "cafe",
-        "sourceImage": "images/princess-coffee-currents-menu-01.jpg"
-      }
-    ],
-    "type": "coffee",
-    "category": "Spirited Coffees",
-    "description": "Lavazza Espresso, Licor 43, Vodka",
-    "ingredients": [
-      "lavazza espresso",
-      "licor 43",
-      "vodka"
-    ],
-    "price": 15,
-    "priceText": "$15.00",
-    "priceBottle": null,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
   },
   {
     "id": "espresso-galliano-11",
@@ -12693,7 +12541,7 @@
     "notes": "No price printed on this menu page."
   },
   {
-    "id": "glen-deveron-16-yr-13",
+    "id": "glen-deveron-16-yo-13",
     "name": "Glen Deveron 16 yr",
     "venues": [
       {
@@ -14273,7 +14121,7 @@
     "notes": "12oz $8.00; 20oz $9.00"
   },
   {
-    "id": "heineken-0-0-8",
+    "id": "heineken-00-8",
     "name": "Heineken 0.0",
     "venues": [
       {
@@ -14333,7 +14181,7 @@
     "notes": "non-alcoholic beer"
   },
   {
-    "id": "heineken-0-0",
+    "id": "heineken-00",
     "name": "Heineken 0.0",
     "venues": [
       {
@@ -14549,14 +14397,26 @@
     "notes": "No price printed on this menu page."
   },
   {
-    "id": "hennessy-v-s-11",
+    "id": "hennessy-vs-11",
     "name": "Hennessy V.S",
     "venues": [
+      {
+        "venue": "Crooners Bar",
+        "venueSlug": "crooners-bar",
+        "venueType": "bar",
+        "sourceImage": "images/princess-crooners-bar-menus-01.jpg"
+      },
       {
         "venue": "Standard Bar",
         "venueSlug": "standard-bar",
         "venueType": "bar",
         "sourceImage": "images/princess-standard-bar-menus-09.webp"
+      },
+      {
+        "venue": "Wheelhouse Bar",
+        "venueSlug": "wheelhouse-bar",
+        "venueType": "bar",
+        "sourceImage": "images/princess-wheelhouse-bar-menus-01.jpg"
       }
     ],
     "type": "spirit",
@@ -14573,68 +14433,20 @@
     "notes": null
   },
   {
-    "id": "hennessy-v-s-o-p-17",
-    "name": "Hennessy V.S.O.P",
-    "venues": [
-      {
-        "venue": "Standard Bar",
-        "venueSlug": "standard-bar",
-        "venueType": "bar",
-        "sourceImage": "images/princess-standard-bar-menus-10.webp"
-      }
-    ],
-    "type": "spirit",
-    "category": "Cognac",
-    "description": "",
-    "ingredients": [],
-    "price": 17,
-    "priceText": "$17.00",
-    "priceBottle": null,
-    "package": "premier",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
-  },
-  {
-    "id": "hennessy-vs-11",
-    "name": "Hennessy VS",
-    "venues": [
-      {
-        "venue": "Crooners Bar",
-        "venueSlug": "crooners-bar",
-        "venueType": "bar",
-        "sourceImage": "images/princess-crooners-bar-menus-01.jpg"
-      },
-      {
-        "venue": "Wheelhouse Bar",
-        "venueSlug": "wheelhouse-bar",
-        "venueType": "bar",
-        "sourceImage": "images/princess-wheelhouse-bar-menus-01.jpg"
-      }
-    ],
-    "type": "spirit",
-    "category": "Cognac",
-    "description": "",
-    "ingredients": [],
-    "price": 11,
-    "priceText": "$11",
-    "priceBottle": null,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
-  },
-  {
     "id": "hennessy-vsop-17",
-    "name": "Hennessy VSOP",
+    "name": "Hennessy V.S.O.P",
     "venues": [
       {
         "venue": "Crooners Bar",
         "venueSlug": "crooners-bar",
         "venueType": "bar",
         "sourceImage": "images/princess-crooners-bar-menus-02.jpg"
+      },
+      {
+        "venue": "Standard Bar",
+        "venueSlug": "standard-bar",
+        "venueType": "bar",
+        "sourceImage": "images/princess-standard-bar-menus-10.webp"
       },
       {
         "venue": "Wheelhouse Bar",
@@ -14648,7 +14460,7 @@
     "description": "",
     "ingredients": [],
     "price": 17,
-    "priceText": "$17",
+    "priceText": "$17.00",
     "priceBottle": null,
     "package": "premier",
     "premium": false,
@@ -14681,31 +14493,7 @@
     "notes": "No price printed on this menu page."
   },
   {
-    "id": "hennessy-x-o-27",
-    "name": "Hennessy X.O",
-    "venues": [
-      {
-        "venue": "Spellbound Bar",
-        "venueSlug": "spellbound",
-        "venueType": "lounge",
-        "sourceImage": "images/princess-spellbound-drink-menus-02.jpg"
-      }
-    ],
-    "type": "spirit",
-    "category": "Cognac",
-    "description": "",
-    "ingredients": [],
-    "price": 27,
-    "priceText": "$27",
-    "priceBottle": null,
-    "package": null,
-    "premium": true,
-    "alcoholic": true,
-    "region": null,
-    "notes": "Beyond tier: additional charge; cost difference applies for beverage package holders per posted package limit."
-  },
-  {
-    "id": "hennessy-x-o-cognac-27",
+    "id": "hennessy-xo-cognac-27",
     "name": "Hennessy X.O Cognac",
     "venues": [
       {
@@ -14737,6 +14525,12 @@
         "venueSlug": "crooners-bar",
         "venueType": "bar",
         "sourceImage": "images/princess-crooners-bar-menus-04.jpg"
+      },
+      {
+        "venue": "Spellbound Bar",
+        "venueSlug": "spellbound",
+        "venueType": "lounge",
+        "sourceImage": "images/princess-spellbound-drink-menus-02.jpg"
       }
     ],
     "type": "spirit",
@@ -15188,84 +14982,6 @@
     "notes": null
   },
   {
-    "id": "ilegal-mezcal-anejo-23",
-    "name": "Ilegal Mezcal Anejo",
-    "venues": [
-      {
-        "venue": "Crooners Bar",
-        "venueSlug": "crooners-bar",
-        "venueType": "bar",
-        "sourceImage": "images/princess-crooners-bar-menus-04.jpg"
-      },
-      {
-        "venue": "Spellbound Bar",
-        "venueSlug": "spellbound",
-        "venueType": "lounge",
-        "sourceImage": "images/princess-spellbound-drink-menus-02.jpg"
-      }
-    ],
-    "type": "spirit",
-    "category": "Mezcal & Tequila",
-    "description": "",
-    "ingredients": [],
-    "price": 23,
-    "priceText": "$23",
-    "priceBottle": null,
-    "package": null,
-    "premium": true,
-    "alcoholic": true,
-    "region": null,
-    "notes": "Beyond tier: additional-charge item, not included in beverage packages."
-  },
-  {
-    "id": "ilegal-mezcal-joven-13",
-    "name": "Ilegal Mezcal Joven",
-    "venues": [
-      {
-        "venue": "Crooners Bar",
-        "venueSlug": "crooners-bar",
-        "venueType": "bar",
-        "sourceImage": "images/princess-crooners-bar-menus-01.jpg"
-      }
-    ],
-    "type": "spirit",
-    "category": "Mezcal & Tequila",
-    "description": "",
-    "ingredients": [],
-    "price": 13,
-    "priceText": "$13",
-    "priceBottle": null,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
-  },
-  {
-    "id": "ilegal-mezcal-reposado-17",
-    "name": "Ilegal Mezcal Reposado",
-    "venues": [
-      {
-        "venue": "Crooners Bar",
-        "venueSlug": "crooners-bar",
-        "venueType": "bar",
-        "sourceImage": "images/princess-crooners-bar-menus-02.jpg"
-      }
-    ],
-    "type": "spirit",
-    "category": "Mezcal",
-    "description": "",
-    "ingredients": [],
-    "price": 17,
-    "priceText": "$17",
-    "priceBottle": null,
-    "package": "premier",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
-  },
-  {
     "id": "ilegal-reposado-mezcal-17",
     "name": "Ilegal Reposado Mezcal",
     "venues": [
@@ -15290,9 +15006,21 @@
     "notes": null
   },
   {
-    "id": "illegal-mezcal-anejo-23",
+    "id": "ilegal-mezcal-anejo-23",
     "name": "Illegal Mezcal Añejo",
     "venues": [
+      {
+        "venue": "Crooners Bar",
+        "venueSlug": "crooners-bar",
+        "venueType": "bar",
+        "sourceImage": "images/princess-crooners-bar-menus-04.jpg"
+      },
+      {
+        "venue": "Spellbound Bar",
+        "venueSlug": "spellbound",
+        "venueType": "lounge",
+        "sourceImage": "images/princess-spellbound-drink-menus-02.jpg"
+      },
       {
         "venue": "Standard Bar",
         "venueSlug": "standard-bar",
@@ -15308,15 +15036,21 @@
     "priceText": "$23.00",
     "priceBottle": null,
     "package": null,
-    "premium": false,
+    "premium": true,
     "alcoholic": true,
     "region": null,
     "notes": "Part of The Beyond Collection (top-shelf upcharge tier, not included with Plus or Premier)"
   },
   {
-    "id": "illegal-mezcal-joven-13",
+    "id": "ilegal-mezcal-joven-13",
     "name": "Illegal Mezcal Joven",
     "venues": [
+      {
+        "venue": "Crooners Bar",
+        "venueSlug": "crooners-bar",
+        "venueType": "bar",
+        "sourceImage": "images/princess-crooners-bar-menus-01.jpg"
+      },
       {
         "venue": "Standard Bar",
         "venueSlug": "standard-bar",
@@ -15338,9 +15072,15 @@
     "notes": null
   },
   {
-    "id": "illegal-mezcal-reposado-17",
+    "id": "ilegal-mezcal-reposado-17",
     "name": "Illegal Mezcal Reposado",
     "venues": [
+      {
+        "venue": "Crooners Bar",
+        "venueSlug": "crooners-bar",
+        "venueType": "bar",
+        "sourceImage": "images/princess-crooners-bar-menus-02.jpg"
+      },
       {
         "venue": "Standard Bar",
         "venueSlug": "standard-bar",
@@ -18226,7 +17966,7 @@
     "notes": null
   },
   {
-    "id": "los-vascos-domaine-barons-de-rothschild-9",
+    "id": "los-vascos-domaine-baron-de-rothschild-9",
     "name": "Los Vascos Domaine Barons de Rothschild",
     "venues": [
       {
@@ -19465,7 +19205,7 @@
     "notes": "Burgundy, France. Bottle price only (no glass listed)."
   },
   {
-    "id": "maison-louis-jadoyt-macon-villages-60",
+    "id": "maison-louis-jadot-macon-villages-60",
     "name": "Maison Louis Jadoyt Macon-Villages",
     "venues": [
       {
@@ -20208,7 +19948,7 @@
     "notes": null
   },
   {
-    "id": "meili-paloma-2-0-15",
+    "id": "meili-paloma-20-15",
     "name": "Meili Paloma 2.0",
     "venues": [
       {
@@ -20292,54 +20032,6 @@
     "notes": "Only a bottle price is printed; no glass price listed."
   },
   {
-    "id": "melorosa-jason-aldean-red-blend-18",
-    "name": "Melorosa Jason Aldean Red Blend",
-    "venues": [
-      {
-        "venue": "Butcher's Block",
-        "venueSlug": "butchers-block",
-        "venueType": "restaurant",
-        "sourceImage": "images/princess-butchers-block-drink-menu-01.jpg"
-      }
-    ],
-    "type": "wine",
-    "category": "Red",
-    "description": "",
-    "ingredients": [],
-    "price": 18,
-    "priceText": "$18/$78",
-    "priceBottle": 78,
-    "package": "premier",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": "California, US"
-  },
-  {
-    "id": "melorosa-jason-aldean-sauv-blanc-18",
-    "name": "Melorosa Jason Aldean Sauv. Blanc",
-    "venues": [
-      {
-        "venue": "Butcher's Block",
-        "venueSlug": "butchers-block",
-        "venueType": "restaurant",
-        "sourceImage": "images/princess-butchers-block-drink-menu-01.jpg"
-      }
-    ],
-    "type": "wine",
-    "category": "White & Rose",
-    "description": "",
-    "ingredients": [],
-    "price": 18,
-    "priceText": "$18/$78",
-    "priceBottle": 78,
-    "package": "premier",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": "California, US"
-  },
-  {
     "id": "melorosa-red-blend-18",
     "name": "Melorosa Red Blend",
     "venues": [
@@ -20365,13 +20057,25 @@
   },
   {
     "id": "melorosa-red-blend-by-jason-aldean-18",
-    "name": "Melorosa Red Blend by Jason Aldean",
+    "name": "Melorosa Red Blend by Jason Aldean, California",
     "venues": [
       {
         "venue": "Bellini's Cocktail Bar",
         "venueSlug": "bellinis-cocktail-bar",
         "venueType": "bar",
         "sourceImage": "images/princess-bellinis-cocktail-bar-menus-01.jpg"
+      },
+      {
+        "venue": "Butcher's Block",
+        "venueSlug": "butchers-block",
+        "venueType": "restaurant",
+        "sourceImage": "images/princess-butchers-block-drink-menu-01.jpg"
+      },
+      {
+        "venue": "Catch by Rudi",
+        "venueSlug": "catch-by-rudi",
+        "venueType": "restaurant",
+        "sourceImage": "images/princess-catch-by-rudi-drink-menus-01.jpg"
       },
       {
         "venue": "Crooners Bar",
@@ -20392,6 +20096,12 @@
         "sourceImage": "images/princess-makoto-ocean-drink-menu-01.jpg"
       },
       {
+        "venue": "The MIX",
+        "venueSlug": "the-mix",
+        "venueType": "bar",
+        "sourceImage": "images/princess-the-mix-bar-menu-01.jpg"
+      },
+      {
         "venue": "The Sanctuary",
         "venueSlug": "the-sanctuary",
         "venueType": "restaurant",
@@ -20408,54 +20118,6 @@
         "venueSlug": "wake-view-bar",
         "venueType": "bar",
         "sourceImage": "images/wake-view-bar-menu-01.jpg"
-      }
-    ],
-    "type": "wine",
-    "category": "Red",
-    "description": "",
-    "ingredients": [],
-    "price": 18,
-    "priceText": "$18 glass / $78 bottle",
-    "priceBottle": 78,
-    "package": "premier",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": "Region: California. 25% discount on bottle price for guests with Princess Plus or Premier."
-  },
-  {
-    "id": "melorosa-red-blend-by-jason-aldean-ca-18",
-    "name": "Melorosa Red Blend by Jason Aldean, CA",
-    "venues": [
-      {
-        "venue": "Catch by Rudi",
-        "venueSlug": "catch-by-rudi",
-        "venueType": "restaurant",
-        "sourceImage": "images/princess-catch-by-rudi-drink-menus-01.jpg"
-      }
-    ],
-    "type": "wine",
-    "category": "Premier Package BTG - Red",
-    "description": "",
-    "ingredients": [],
-    "price": 18,
-    "priceText": "$18 / $78",
-    "priceBottle": 78,
-    "package": "premier",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
-  },
-  {
-    "id": "melorosa-red-blend-by-jason-aldean-california-18",
-    "name": "Melorosa Red Blend by Jason Aldean, California",
-    "venues": [
-      {
-        "venue": "The MIX",
-        "venueSlug": "the-mix",
-        "venueType": "bar",
-        "sourceImage": "images/princess-the-mix-bar-menu-01.jpg"
       },
       {
         "venue": "Wheelhouse Bar",
@@ -20527,13 +20189,25 @@
   },
   {
     "id": "melorosa-sauvignon-blanc-by-jason-aldean-18",
-    "name": "Melorosa Sauvignon Blanc by Jason Aldean",
+    "name": "Melorosa Sauvignon Blanc by Jason Aldean, California",
     "venues": [
       {
         "venue": "Bellini's Cocktail Bar",
         "venueSlug": "bellinis-cocktail-bar",
         "venueType": "bar",
         "sourceImage": "images/princess-bellinis-cocktail-bar-menus-01.jpg"
+      },
+      {
+        "venue": "Butcher's Block",
+        "venueSlug": "butchers-block",
+        "venueType": "restaurant",
+        "sourceImage": "images/princess-butchers-block-drink-menu-01.jpg"
+      },
+      {
+        "venue": "Catch by Rudi",
+        "venueSlug": "catch-by-rudi",
+        "venueType": "restaurant",
+        "sourceImage": "images/princess-catch-by-rudi-drink-menus-01.jpg"
       },
       {
         "venue": "Crooners Bar",
@@ -20554,6 +20228,12 @@
         "sourceImage": "images/princess-makoto-ocean-drink-menu-01.jpg"
       },
       {
+        "venue": "The MIX",
+        "venueSlug": "the-mix",
+        "venueType": "bar",
+        "sourceImage": "images/princess-the-mix-bar-menu-01.jpg"
+      },
+      {
         "venue": "The Sanctuary",
         "venueSlug": "the-sanctuary",
         "venueType": "restaurant",
@@ -20570,54 +20250,6 @@
         "venueSlug": "wake-view-bar",
         "venueType": "bar",
         "sourceImage": "images/wake-view-bar-menu-01.jpg"
-      }
-    ],
-    "type": "wine",
-    "category": "Whites & Rose",
-    "description": "",
-    "ingredients": [],
-    "price": 18,
-    "priceText": "$18 glass / $78 bottle",
-    "priceBottle": 78,
-    "package": "premier",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": "Region: California. 25% discount on bottle price for guests with Princess Plus or Premier."
-  },
-  {
-    "id": "melorosa-sauvignon-blanc-by-jason-aldean-ca-18",
-    "name": "Melorosa Sauvignon Blanc by Jason Aldean, CA",
-    "venues": [
-      {
-        "venue": "Catch by Rudi",
-        "venueSlug": "catch-by-rudi",
-        "venueType": "restaurant",
-        "sourceImage": "images/princess-catch-by-rudi-drink-menus-01.jpg"
-      }
-    ],
-    "type": "wine",
-    "category": "Premier Package BTG - Champagne, White and Rosé",
-    "description": "",
-    "ingredients": [],
-    "price": 18,
-    "priceText": "$18 / $78",
-    "priceBottle": 78,
-    "package": "premier",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
-  },
-  {
-    "id": "melorosa-sauvignon-blanc-by-jason-aldean-california-18",
-    "name": "Melorosa Sauvignon Blanc by Jason Aldean, California",
-    "venues": [
-      {
-        "venue": "The MIX",
-        "venueSlug": "the-mix",
-        "venueType": "bar",
-        "sourceImage": "images/princess-the-mix-bar-menu-01.jpg"
       },
       {
         "venue": "Wheelhouse Bar",
@@ -21131,7 +20763,7 @@
     "notes": null
   },
   {
-    "id": "mineral-water-1-5l",
+    "id": "mineral-water-15l",
     "name": "Mineral Water (1.5L)",
     "venues": [
       {
@@ -24042,37 +23674,7 @@
     "notes": null
   },
   {
-    "id": "peroni-nastro-azzuro-8",
-    "name": "Peroni Nastro Azzuro",
-    "venues": [
-      {
-        "venue": "Crooners Bar",
-        "venueSlug": "crooners-bar",
-        "venueType": "bar",
-        "sourceImage": "images/princess-crooners-bar-menus-02.jpg"
-      },
-      {
-        "venue": "Princess Live!",
-        "venueSlug": "princess-live",
-        "venueType": "lounge",
-        "sourceImage": "images/princess-live-bar-menu-01.jpg"
-      }
-    ],
-    "type": "beer",
-    "category": "Craft & Imports",
-    "description": "",
-    "ingredients": [],
-    "price": 8,
-    "priceText": "$8",
-    "priceBottle": null,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
-  },
-  {
-    "id": "peroni-nastro-azzuro",
+    "id": "peroni-nastro-azzurro",
     "name": "Peroni Nastro Azzuro",
     "venues": [
       {
@@ -24106,6 +23708,12 @@
         "sourceImage": "images/princess-alfredos-pizzeria-drink-menu-01.jpg"
       },
       {
+        "venue": "Crooners Bar",
+        "venueSlug": "crooners-bar",
+        "venueType": "bar",
+        "sourceImage": "images/princess-crooners-bar-menus-02.jpg"
+      },
+      {
         "venue": "O'Malley's Irish Pub",
         "venueSlug": "omalleys-irish-pub",
         "venueType": "pub",
@@ -24116,6 +23724,12 @@
         "venueSlug": "planks-bbq",
         "venueType": "restaurant",
         "sourceImage": "images/princess-planks-bbq-drink-menu-01.jpg"
+      },
+      {
+        "venue": "Princess Live!",
+        "venueSlug": "princess-live",
+        "venueType": "lounge",
+        "sourceImage": "images/princess-live-bar-menu-01.jpg"
       },
       {
         "venue": "Standard Bar",
@@ -25447,32 +25061,14 @@
   },
   {
     "id": "redbreast-12-yo-15",
-    "name": "Redbreast 12 YO",
+    "name": "Redbreast 12 Yr",
     "venues": [
       {
         "venue": "O'Malley's Irish Pub",
         "venueSlug": "omalleys-irish-pub",
         "venueType": "pub",
         "sourceImage": "images/princess-omalleys-irish-pub-drink-menu-02.webp"
-      }
-    ],
-    "type": "spirit",
-    "category": "O'Malley's Irish Whiskeys",
-    "description": "",
-    "ingredients": [],
-    "price": 15,
-    "priceText": "$15",
-    "priceBottle": null,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
-  },
-  {
-    "id": "redbreast-12-yr-15",
-    "name": "Redbreast 12 Yr",
-    "venues": [
+      },
       {
         "venue": "Standard Bar",
         "venueSlug": "standard-bar",
@@ -25548,7 +25144,7 @@
     "notes": "12 oz"
   },
   {
-    "id": "remy-martin-louis-xiii-0-5-oz-100",
+    "id": "remy-martin-louis-xiii-05-oz-100",
     "name": "Remy Martin Louis XIII (0.5 oz)",
     "venues": [
       {
@@ -25572,7 +25168,7 @@
     "notes": "Beyond tier: additional-charge item, not included in beverage packages. 0.5 oz pour."
   },
   {
-    "id": "remy-martin-louis-xiii-1-0-oz-160",
+    "id": "remy-martin-louis-xiii-10-oz-160",
     "name": "Remy Martin Louis XIII (1.0 oz)",
     "venues": [
       {
@@ -25656,30 +25252,6 @@
     "notes": null
   },
   {
-    "id": "remy-martin-x-o-20",
-    "name": "Remy Martin X.O",
-    "venues": [
-      {
-        "venue": "Spellbound Bar",
-        "venueSlug": "spellbound",
-        "venueType": "lounge",
-        "sourceImage": "images/princess-spellbound-drink-menus-02.jpg"
-      }
-    ],
-    "type": "spirit",
-    "category": "Cognac",
-    "description": "",
-    "ingredients": [],
-    "price": 20,
-    "priceText": "$20",
-    "priceBottle": null,
-    "package": "premier",
-    "premium": true,
-    "alcoholic": true,
-    "region": null,
-    "notes": "Beyond tier: additional charge; cost difference applies for beverage package holders per posted package limit."
-  },
-  {
     "id": "remy-martin-xo-20",
     "name": "Rémy Martin XO",
     "venues": [
@@ -25688,6 +25260,12 @@
         "venueSlug": "crooners-bar",
         "venueType": "bar",
         "sourceImage": "images/princess-crooners-bar-menus-02.jpg"
+      },
+      {
+        "venue": "Spellbound Bar",
+        "venueSlug": "spellbound",
+        "venueType": "lounge",
+        "sourceImage": "images/princess-spellbound-drink-menus-02.jpg"
       },
       {
         "venue": "Standard Bar",
@@ -25710,10 +25288,10 @@
     "priceText": "$20.00",
     "priceBottle": null,
     "package": "premier",
-    "premium": false,
+    "premium": true,
     "alcoholic": true,
     "region": null,
-    "notes": null
+    "notes": "Beyond tier: additional charge; cost difference applies for beverage package holders per posted package limit."
   },
   {
     "id": "remy-pannier-sancerre-77",
@@ -26083,30 +25661,6 @@
     "notes": null
   },
   {
-    "id": "romero-britto-princess-love-vila-sandi-prosecco-12",
-    "name": "Romero Britto Princess Love Vila Sandi Prosecco",
-    "venues": [
-      {
-        "venue": "Wake View Bar",
-        "venueSlug": "wake-view-bar",
-        "venueType": "bar",
-        "sourceImage": "images/wake-view-bar-menu-01.jpg"
-      }
-    ],
-    "type": "wine",
-    "category": "Champagne & Sparkling",
-    "description": "",
-    "ingredients": [],
-    "price": 12,
-    "priceText": "$12 glass / $46 bottle",
-    "priceBottle": 46,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": "25% discount on bottle price for guests with Princess Plus or Premier."
-  },
-  {
     "id": "romero-britto-princess-love-villa-sandi-prosecco-12",
     "name": "Romero Britto Princess Love Villa Sandi Prosecco",
     "venues": [
@@ -26187,6 +25741,12 @@
         "venueSlug": "vines-wine-bar",
         "venueType": "bar",
         "sourceImage": "images/princess-vines-wine-bar-menu-01.jpg"
+      },
+      {
+        "venue": "Wake View Bar",
+        "venueSlug": "wake-view-bar",
+        "venueType": "bar",
+        "sourceImage": "images/wake-view-bar-menu-01.jpg"
       },
       {
         "venue": "Wheelhouse Bar",
@@ -27758,30 +27318,6 @@
     "alcoholic": false,
     "region": null,
     "notes": "Add-on extra. Menu heading reads 'Coffee Currents' (Lavazza), filed under Bellini's per assignment."
-  },
-  {
-    "id": "shot-of-espresso-1-2",
-    "name": "Shot of Espresso",
-    "venues": [
-      {
-        "venue": "Coffee Currents",
-        "venueSlug": "coffee-currents",
-        "venueType": "cafe",
-        "sourceImage": "images/princess-coffee-currents-menu-01.jpg"
-      }
-    ],
-    "type": "coffee",
-    "category": "Extras",
-    "description": "",
-    "ingredients": [],
-    "price": 1,
-    "priceText": "$1.00",
-    "priceBottle": null,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": false,
-    "region": null,
-    "notes": "Add-on / modifier to another drink, not a standalone beverage."
   },
   {
     "id": "shot-of-flavored-syrup-1",
@@ -29982,7 +29518,7 @@
     "notes": null
   },
   {
-    "id": "talisker-10-yr-13",
+    "id": "talisker-10-yo-13",
     "name": "Talisker 10 Yr",
     "venues": [
       {
@@ -30090,9 +29626,21 @@
     "notes": "No price printed on this menu page."
   },
   {
-    "id": "tanqueray-n-ten-11",
-    "name": "Tanqueray N° Ten",
+    "id": "tanqueray-no-ten-11",
+    "name": "Tanqueray No. 10",
     "venues": [
+      {
+        "venue": "Crooners Bar",
+        "venueSlug": "crooners-bar",
+        "venueType": "bar",
+        "sourceImage": "images/princess-crooners-bar-menus-01.jpg"
+      },
+      {
+        "venue": "Standard Bar",
+        "venueSlug": "standard-bar",
+        "venueType": "bar",
+        "sourceImage": "images/princess-standard-bar-menus-09.webp"
+      },
       {
         "venue": "Wheelhouse Bar",
         "venueSlug": "wheelhouse-bar",
@@ -30105,55 +29653,7 @@
     "description": "",
     "ingredients": [],
     "price": 11,
-    "priceText": "$11",
-    "priceBottle": null,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
-  },
-  {
-    "id": "tanqueray-no-10-11",
-    "name": "Tanqueray No. 10",
-    "venues": [
-      {
-        "venue": "Standard Bar",
-        "venueSlug": "standard-bar",
-        "venueType": "bar",
-        "sourceImage": "images/princess-standard-bar-menus-09.webp"
-      }
-    ],
-    "type": "spirit",
-    "category": "Gin",
-    "description": "",
-    "ingredients": [],
-    "price": 11,
     "priceText": "$11.00",
-    "priceBottle": null,
-    "package": "plus",
-    "premium": false,
-    "alcoholic": true,
-    "region": null,
-    "notes": null
-  },
-  {
-    "id": "tanqueray-no-ten-11",
-    "name": "Tanqueray No. Ten",
-    "venues": [
-      {
-        "venue": "Crooners Bar",
-        "venueSlug": "crooners-bar",
-        "venueType": "bar",
-        "sourceImage": "images/princess-crooners-bar-menus-01.jpg"
-      }
-    ],
-    "type": "spirit",
-    "category": "Gin",
-    "description": "",
-    "ingredients": [],
-    "price": 11,
-    "priceText": "$11",
     "priceBottle": null,
     "package": "plus",
     "premium": false,
@@ -30768,7 +30268,7 @@
     "notes": "No price printed on this menu page."
   },
   {
-    "id": "the-glenlivet-12-yr-17",
+    "id": "the-glenlivet-12-yo-17",
     "name": "The Glenlivet 12 Yr",
     "venues": [
       {
@@ -31035,7 +30535,7 @@
     "notes": "Beyond tier: additional-charge item, not included in beverage packages."
   },
   {
-    "id": "the-macallan-12-yr-19",
+    "id": "the-macallan-12-yo-19",
     "name": "The Macallan 12 Yr",
     "venues": [
       {
@@ -31059,7 +30559,7 @@
     "notes": null
   },
   {
-    "id": "the-macallan-single-malt-15-yr-23",
+    "id": "the-macallan-single-malt-15-yo-23",
     "name": "The Macallan Single Malt 15 Yr",
     "venues": [
       {
@@ -31083,7 +30583,7 @@
     "notes": "Part of The Beyond Collection (top-shelf upcharge tier, not included with Plus or Premier)"
   },
   {
-    "id": "the-macallan-single-malt-18-yr-26",
+    "id": "the-macallan-single-malt-18-yo-26",
     "name": "The Macallan Single Malt 18 Yr",
     "venues": [
       {
@@ -31504,7 +31004,7 @@
     "notes": "No price printed on this menu page."
   },
   {
-    "id": "togouchi-japanese-blended-15-yr-32",
+    "id": "togouchi-japanese-blended-15-yo-32",
     "name": "Togouchi Japanese Blended 15 Yr",
     "venues": [
       {
@@ -31528,7 +31028,7 @@
     "notes": null
   },
   {
-    "id": "togouchi-japanese-blended-whisky-15yr-32",
+    "id": "togouchi-japanese-blended-whisky-15-yo-32",
     "name": "Togouchi Japanese Blended Whisky 15yr",
     "venues": [
       {

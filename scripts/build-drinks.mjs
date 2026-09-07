@@ -28,9 +28,35 @@ function foldAccents(s) {
   return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
+// Known transcription inconsistencies for the SAME product across independently-transcribed
+// menu photos: brand-name typos, English/Spanish spelling of the same printed brand, and
+// abbreviation punctuation ("X.O" vs "XO"). Found via scripts/_audit-spelling.mjs — a fuzzy
+// edit-distance scan across the merged dataset — and verified by hand against the source
+// photos before adding here, since a wrong alias would silently merge two different drinks.
+const NAME_ALIASES = [
+  [/\billegal\b/g, 'ilegal'], // "Ilegal Mezcal" is the correct brand spelling (one L)
+  [/\bazzuro\b/g, 'azzurro'], // Peroni Nastro Azzurro
+  [/\bvila sandi\b/g, 'villa sandi'],
+  [/\bbarons de rothschild\b/g, 'baron de rothschild'],
+  [/\bjadoyt\b/g, 'jadot'], // Maison Louis Jadot
+  [/\breserve ocho\b/g, 'reserva ocho'], // Bacardi Reserva Ocho
+  [/\bno 10\b/g, 'no ten'], // Tanqueray No. 10 / No. Ten / N° Ten
+  [/\bn ten\b/g, 'no ten'],
+  [/\b(\d+)\s*yr\b/g, '$1 yo'], // "12 Yr" vs "12 YO" age statements
+  [/\bcaffe\b/g, 'cafe'], // "Caffè Latte" (accent-folded to "caffe") vs "Cafe Latte"
+  // Melorosa wines print as "X by Jason Aldean[, CA/California]" almost everywhere, but
+  // Butcher's Block flips the word order and abbreviates "Sauvignon" — same two wines either way.
+  [/\bby jason aldean,? ca(lifornia)?\b/g, 'by jason aldean'],
+  [/\bmelorosa jason aldean red blend\b/g, 'melorosa red blend by jason aldean'],
+  [/\bmelorosa jason aldean sauv blanc\b/g, 'melorosa sauvignon blanc by jason aldean'],
+];
+
 function slugify(s) {
-  return foldAccents(s)
+  let normalized = foldAccents(s)
     .toLowerCase()
+    .replace(/[.°]/g, ''); // strip abbreviation punctuation without splitting words: "X.O" -> "xo"
+  for (const [pattern, replacement] of NAME_ALIASES) normalized = normalized.replace(pattern, replacement);
+  return normalized
     .replace(/['’]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
@@ -129,6 +155,24 @@ function main() {
     });
   }
 
+  // Same venue + same name + same price is the same listing even if two independent
+  // transcriptions (e.g. two overlapping source photos of one physical menu, like the
+  // Coffee Currents page scraped twice under different captions) judged its `type`
+  // differently — e.g. a spirited coffee filed as "cocktail" by one pass and "coffee" by
+  // another. Collapse those before cross-venue grouping so they don't show up twice.
+  const perVenueSeen = new Map();
+  const sameVenueDuplicatesDropped = [];
+  const dedupedRecords = [];
+  for (const rec of records) {
+    const key = `${rec.venueSlug}|${slugify(rec.name)}|${rec.price}`;
+    if (perVenueSeen.has(key)) {
+      sameVenueDuplicatesDropped.push(`${rec.venue} / ${rec.name} (type "${rec.type}", already have "${perVenueSeen.get(key)}")`);
+      continue;
+    }
+    perVenueSeen.set(key, rec.type);
+    dedupedRecords.push(rec);
+  }
+
   // A few drink names are reused fleet-wide for genuinely different recipes that happen to
   // share a name, type, and price by coincidence — verified by hand via scripts/_audit-merges.mjs
   // (a token-overlap similarity check across every multi-venue group). These must NOT merge.
@@ -144,7 +188,7 @@ function main() {
   // ("Grand Marnier" vs "Grand Marnier float"), but `type` still guards against merging a
   // cocktail with an unrelated mocktail that happens to share a name and price.
   const groups = new Map();
-  for (const rec of records) {
+  for (const rec of dedupedRecords) {
     let key = `${slugify(rec.name)}|${rec.price}|${rec.type}`;
     if (FORCE_SPLIT_KEYS.has(key)) key += `|${rec.venueSlug}`;
     if (!groups.has(key)) groups.set(key, []);
@@ -218,6 +262,10 @@ function main() {
   for (const it of items) packageCounts[it.package || 'none']++;
   console.log(`\nPackage inclusion: Plus ${packageCounts.plus}, Premier-only ${packageCounts.premier}, not included ${packageCounts.none}`);
 
+  if (sameVenueDuplicatesDropped.length) {
+    console.log(`\n${sameVenueDuplicatesDropped.length} same-venue duplicate(s) dropped (same venue+name+price, differing only in judged type):`);
+    sameVenueDuplicatesDropped.forEach((d) => console.log(`  - ${d}`));
+  }
   if (warnings.length) {
     console.log(`\n${warnings.length} warning(s):`);
     warnings.forEach((w) => console.log(`  - ${w}`));
