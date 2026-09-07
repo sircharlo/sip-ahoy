@@ -13,8 +13,9 @@
   --chip-text-active: #ffffff;
   --shadow: 0 1px 2px rgba(20, 30, 50, 0.06), 0 4px 16px rgba(20, 30, 50, 0.06);
   --radius: 12px;
-  --alcoholic: #b1560f;
+  --alcoholic: #9c4a0d;
   --nonalcoholic: #1b7a4d;
+  --premier: #7a3fc9;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -34,6 +35,7 @@
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.35);
     --alcoholic: #e2984f;
     --nonalcoholic: #4fd996;
+    --premier: #c39cf0;
   }
 }
 
@@ -53,9 +55,14 @@
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.35);
   --alcoholic: #e2984f;
   --nonalcoholic: #4fd996;
+  --premier: #c39cf0;
 }
 
 * { box-sizing: border-box; }
+
+/* Several elements below set their own `display` (flex/grid) unconditionally, which as an
+   author style otherwise beats the browser's default `[hidden]{display:none}` UA rule. */
+[hidden] { display: none !important; }
 
 html, body {
   margin: 0;
@@ -212,6 +219,18 @@ button {
   color: var(--chip-text-active);
   border-color: var(--chip-bg-active);
 }
+.chip.active .count {
+  color: var(--chip-text-active);
+  opacity: 0.75;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
 .chip-x {
   font-weight: 700;
@@ -249,10 +268,6 @@ button {
   flex-direction: column;
   gap: 2px;
 }
-.ingredient-suggestions[hidden] {
-  display: none;
-}
-
 .ingredient-suggestions button {
   text-align: left;
   background: none;
@@ -298,6 +313,10 @@ button {
 }
 .venue-list label:hover,
 .checkbox-row label:hover { background: var(--surface-2); }
+.venue-list label:has(input:checked) {
+  background: var(--surface-2);
+  font-weight: 600;
+}
 
 .venue-list .count,
 .chip .count {
@@ -381,12 +400,18 @@ select {
   font-size: 1.02rem;
   font-weight: 650;
   line-height: 1.25;
+  margin: 0;
 }
 
 .card__price {
   font-weight: 700;
   white-space: nowrap;
   color: var(--accent);
+}
+.card__price--unknown {
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--text-dim);
 }
 
 .card__venue {
@@ -399,7 +424,8 @@ select {
   color: var(--text-dim);
   text-decoration: underline dotted;
   font-size: inherit;
-  padding: 0;
+  padding: 6px 4px;
+  display: inline-block;
 }
 
 .flag-btn:hover { color: var(--alcoholic); }
@@ -429,12 +455,17 @@ select {
 .badge.nonalcoholic { color: var(--nonalcoholic); border-color: var(--nonalcoholic); }
 .badge.premium { color: #b8860b; border-color: #b8860b; }
 .badge.plus { color: var(--accent); border-color: var(--accent); }
-.badge.premier { color: #7a3fc9; border-color: #7a3fc9; }
+.badge.premier { color: var(--premier); border-color: var(--premier); }
 
 .empty-state {
   text-align: center;
   padding: 60px 20px;
   color: var(--text-dim);
+}
+.empty-state__reset {
+  width: auto;
+  margin: 16px auto 0;
+  padding: 9px 24px;
 }
 
 /* ---------- Modal (source menu photo) ---------- */

@@ -161,18 +161,18 @@ function shellHtml() {
         <button class="filters-toggle" id="filtersToggle" type="button">Filters</button>
       </div>
       <div class="search-row">
-        <input type="search" id="searchInput" placeholder="Search drinks, ingredients, venues&hellip;" autocomplete="off" />
+        <input type="search" id="searchInput" placeholder="Search drinks, ingredients, venues&hellip;" autocomplete="off" aria-label="Search drinks, ingredients, venues" />
       </div>
     </header>
     <div class="layout">
       <aside class="filters" id="filtersPanel">
-        <button class="filters-close" id="filtersClose" type="button" aria-label="Close filters">✕</button>
+        <button class="filters-close" id="filtersClose" type="button" aria-label="Close filters">&times;</button>
         <div id="filtersBody"></div>
         <button class="reset-btn" id="resetBtn" type="button">Reset all filters</button>
       </aside>
       <main>
         <div class="results-header">
-          <span id="resultCount"></span>
+          <span id="resultCount" aria-live="polite"></span>
         </div>
         <div class="results-grid" id="results"></div>
         <div id="loadMoreWrap" style="text-align:center; margin-top:20px;"></div>
@@ -244,13 +244,13 @@ function buildFilters(items) {
 
     <h2>Price</h2>
     <div class="price-row">
-      <input type="number" id="minPrice" placeholder="$${dataMinPrice}" min="0" />
+      <input type="number" id="minPrice" placeholder="$${dataMinPrice}" min="0" aria-label="Minimum price" />
       <span>&ndash;</span>
-      <input type="number" id="maxPrice" placeholder="$${dataMaxPrice}" min="0" />
+      <input type="number" id="maxPrice" placeholder="$${dataMaxPrice}" min="0" aria-label="Maximum price" />
     </div>
 
     <h2>Drink package</h2>
-    <select id="pkgSelect">
+    <select id="pkgSelect" aria-label="Drink package filter">
       <option value="all">Any</option>
       <option value="plus">Included with Plus</option>
       <option value="premier">Included with Premier</option>
@@ -282,7 +282,7 @@ function buildFilters(items) {
 
     <h2>Ingredients</h2>
     <div class="ingredient-search">
-      <input type="text" id="ingredientSearchInput" placeholder="Search any ingredient&hellip;" autocomplete="off" />
+      <input type="text" id="ingredientSearchInput" placeholder="Search any ingredient&hellip;" autocomplete="off" aria-label="Search ingredients" />
       <div class="ingredient-suggestions" id="ingredientSuggestions" hidden></div>
     </div>
     <div class="chip-row" id="selectedIngredientChips"></div>
@@ -294,7 +294,7 @@ function buildFilters(items) {
     </div>
 
     <h2>Sort by</h2>
-    <select id="sortSelect">
+    <select id="sortSelect" aria-label="Sort results by">
       <option value="relevance">Relevance</option>
       <option value="name">Name A&ndash;Z</option>
       <option value="price-asc">Price: low to high</option>
@@ -389,31 +389,7 @@ function wireEvents() {
     if (e.target.id === 'minPrice' || e.target.id === 'maxPrice') priceHandler();
   });
 
-  document.getElementById('resetBtn').addEventListener('click', () => {
-    state.query = '';
-    state.types.clear();
-    state.venueTypes.clear();
-    state.venues.clear();
-    state.ingredients.clear();
-    state.alcoholic = 'all';
-    state.pkg = 'all';
-    state.premiumOnly = false;
-    state.minPrice = null;
-    state.maxPrice = null;
-    state.sort = 'relevance';
-    state.page = 1;
-    document.getElementById('searchInput').value = '';
-    document.getElementById('minPrice').value = '';
-    document.getElementById('maxPrice').value = '';
-    document.getElementById('pkgSelect').value = 'all';
-    document.getElementById('sortSelect').value = 'relevance';
-    document.getElementById('ingredientSearchInput').value = '';
-    renderIngredientSuggestions('');
-    document.querySelectorAll('.chip').forEach((c) => c.classList.remove('active'));
-    document.querySelector('#alcoholChips .chip[data-value="all"]')?.classList.add('active');
-    document.querySelectorAll('#venueList input[type="checkbox"]').forEach((cb) => (cb.checked = false));
-    render();
-  });
+  document.getElementById('resetBtn').addEventListener('click', resetFilters);
 
   const openFilters = () => {
     document.getElementById('filtersPanel').classList.add('open');
@@ -439,8 +415,36 @@ function wireEvents() {
     if (flagBtn) {
       const item = ITEMS_BY_ID.get(flagBtn.dataset.flagId);
       if (item) window.open(buildIssueUrl(item), '_blank', 'noopener');
+      return;
     }
+    if (e.target.id === 'emptyStateReset') resetFilters();
   });
+}
+
+function resetFilters() {
+  state.query = '';
+  state.types.clear();
+  state.venueTypes.clear();
+  state.venues.clear();
+  state.ingredients.clear();
+  state.alcoholic = 'all';
+  state.pkg = 'all';
+  state.premiumOnly = false;
+  state.minPrice = null;
+  state.maxPrice = null;
+  state.sort = 'relevance';
+  state.page = 1;
+  document.getElementById('searchInput').value = '';
+  document.getElementById('minPrice').value = '';
+  document.getElementById('maxPrice').value = '';
+  document.getElementById('pkgSelect').value = 'all';
+  document.getElementById('sortSelect').value = 'relevance';
+  document.getElementById('ingredientSearchInput').value = '';
+  renderIngredientSuggestions('');
+  document.querySelectorAll('.chip').forEach((c) => c.classList.remove('active'));
+  document.querySelector('#alcoholChips .chip[data-value="all"]')?.classList.add('active');
+  document.querySelectorAll('#venueList input[type="checkbox"]').forEach((cb) => (cb.checked = false));
+  render();
 }
 
 function toggleSetChip(set, value, chipEl) {
@@ -576,9 +580,14 @@ function renderIngredientFilters() {
 
 function renderIngredientSuggestions(query) {
   const box = document.getElementById('ingredientSuggestions');
+  // The popular-picks row sits directly under the dropdown in normal flow (the dropdown is
+  // absolutely positioned, so it doesn't push anything down) — hide it while suggestions are
+  // showing so it can't visibly peek out from under the dropdown's rounded corners.
+  const popularRow = document.getElementById('ingredientChips');
   if (!query) {
     box.hidden = true;
     box.innerHTML = '';
+    popularRow.hidden = false;
     return;
   }
   // Rank an exact match, then a prefix match, then shorter strings first — so searching "mint"
@@ -594,9 +603,11 @@ function renderIngredientSuggestions(query) {
   if (!matches.length) {
     box.hidden = true;
     box.innerHTML = '';
+    popularRow.hidden = false;
     return;
   }
   box.hidden = false;
+  popularRow.hidden = true;
   box.innerHTML = matches
     .map((ing) => `<button type="button" data-kind="ingredient" data-value="${escapeHtml(ing)}">${escapeHtml(ing)}</button>`)
     .join('');
@@ -636,20 +647,23 @@ function cardHtml(item) {
     .map((v) => {
       const imgUrl = `data/${v.sourceImage}`;
       const caption = `${v.venue} — ${item.category || ''}`;
-      return `<button type="button" data-view-image="${escapeHtml(imgUrl)}" data-view-caption="${escapeHtml(caption)}" title="View menu photo from ${escapeHtml(v.venue)}">${escapeHtml(v.venue)}</button>`;
+      const label = `View menu photo from ${v.venue}`;
+      return `<button type="button" data-view-image="${escapeHtml(imgUrl)}" data-view-caption="${escapeHtml(caption)}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">${escapeHtml(v.venue)}</button>`;
     })
     .join(', ');
+
+  const priceKnown = item.price !== null && item.price !== undefined;
 
   return `
     <article class="card">
       <div class="card__top">
-        <div class="card__name">${escapeHtml(item.name)}</div>
-        <div class="card__price">${escapeHtml(priceLabel(item))}</div>
+        <h3 class="card__name">${escapeHtml(item.name)}</h3>
+        <div class="card__price${priceKnown ? '' : ' card__price--unknown'}">${escapeHtml(priceLabel(item))}</div>
       </div>
       <div class="card__venue">
         ${item.category ? `${escapeHtml(item.category)} · ` : ''}${venueLinks}
         &nbsp;&middot;&nbsp;
-        <button type="button" class="flag-btn" data-flag-id="${escapeHtml(item._id)}" title="Report incorrect info for this drink">🚩 report</button>
+        <button type="button" class="flag-btn" data-flag-id="${escapeHtml(item._id)}" aria-label="Report incorrect info for ${escapeHtml(item.name)}" title="Report incorrect info for this drink">🚩 report</button>
       </div>
       ${item.description ? `<div class="card__desc">${escapeHtml(item.description)}</div>` : ''}
       ${item.notes ? `<div class="card__desc"><em>${escapeHtml(item.notes)}</em></div>` : ''}
@@ -670,7 +684,11 @@ function render() {
 
   const results = document.getElementById('results');
   if (!filtered.length) {
-    results.innerHTML = `<div class="empty-state">No drinks match your filters. Try loosening a filter or clearing your search.</div>`;
+    results.innerHTML = `
+      <div class="empty-state">
+        No drinks match your filters. Try loosening a filter or clearing your search.
+        <div><button class="reset-btn empty-state__reset" id="emptyStateReset" type="button">Clear all filters</button></div>
+      </div>`;
   } else {
     results.innerHTML = visible.map(cardHtml).join('');
   }
@@ -692,7 +710,7 @@ function openImageModal(src, caption) {
   root.innerHTML = `
     <div class="modal-backdrop" id="modalBackdrop">
       <div class="modal">
-        <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+        <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
         <img src="${escapeHtml(src)}" alt="${escapeHtml(caption)}" />
         <div class="modal-caption">${escapeHtml(caption)}</div>
       </div>
@@ -712,6 +730,9 @@ function openImageModal(src, caption) {
 }
 
 function showToast(message) {
+  // Don't cover the open mobile filter sheet (its Reset button and venue list sit right where
+  // the toast would land).
+  if (document.body.classList.contains('no-scroll')) return;
   const el = document.createElement('div');
   el.className = 'toast';
   el.textContent = message;
