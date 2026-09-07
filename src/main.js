@@ -43,6 +43,9 @@ let dataMaxPrice = 100;
 // (see updateFacetCounts) change as filters are applied, so the lists themselves don't
 // reorder or jump around while browsing.
 const FACET_OPTIONS = { ingredients: [] };
+// Every distinct ingredient (no frequency floor), for the ingredient search box — separate
+// from FACET_OPTIONS.ingredients, which is just the top ~28 shown as default quick-pick chips.
+let ALL_INGREDIENTS = [];
 
 const escapeHtml = (s) =>
   String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -68,6 +71,14 @@ function priceLabel(item) {
   }
   if (item.price === null || item.price === undefined) return item.priceText || 'Price not listed';
   return formatMoney(item.price);
+}
+
+function hasAllIngredients(item, wantedIterable) {
+  const ings = item.ingredients || [];
+  for (const wanted of wantedIterable) {
+    if (!ings.some((ing) => ing.includes(wanted))) return false;
+  }
+  return true;
 }
 
 function buildSearchIndex(item) {
@@ -204,6 +215,9 @@ function buildFilters(items) {
     .slice(0, 28)
     .sort((a, b) => a[0].localeCompare(b[0]))
     .map(([ing]) => ing);
+  // Unfiltered (no frequency floor) — backs the "search any ingredient" box, since plenty of
+  // real ingredients (e.g. a specific liqueur) are too rare to make the top-28 quick-pick list.
+  ALL_INGREDIENTS = [...ingredientCounts.keys()].sort((a, b) => a.localeCompare(b));
 
   const sortedVenues = [...venueSet.keys()].sort((a, b) => a.localeCompare(b));
   const sortedTypes = [...typeCounts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
@@ -266,15 +280,13 @@ function buildFilters(items) {
         .join('')}
     </div>
 
-    <h2>Popular ingredients</h2>
-    <div class="chip-row" id="ingredientChips">
-      ${FACET_OPTIONS.ingredients
-        .map(
-          (ing) =>
-            `<button class="chip" data-kind="ingredient" data-value="${escapeHtml(ing)}" type="button">${escapeHtml(ing)} <span class="count"></span></button>`
-        )
-        .join('')}
+    <h2>Ingredients</h2>
+    <div class="ingredient-search">
+      <input type="text" id="ingredientSearchInput" placeholder="Search any ingredient&hellip;" autocomplete="off" />
+      <div class="ingredient-suggestions" id="ingredientSuggestions" hidden></div>
     </div>
+    <div class="chip-row" id="selectedIngredientChips"></div>
+    <div class="chip-row" id="ingredientChips"></div>
 
     <h2>Special</h2>
     <div class="chip-row">
@@ -303,13 +315,19 @@ function wireEvents() {
   );
 
   document.getElementById('filtersBody').addEventListener('click', (e) => {
-    const chip = e.target.closest('.chip[data-kind]');
+    const chip = e.target.closest('button[data-kind]');
     if (chip) {
       const { kind, value } = chip.dataset;
       if (kind === 'type') toggleSetChip(state.types, value, chip);
       else if (kind === 'venueType') toggleSetChip(state.venueTypes, value, chip);
-      else if (kind === 'ingredient') toggleSetChip(state.ingredients, value, chip);
-      else if (kind === 'alcoholic') {
+      else if (kind === 'ingredient') {
+        toggleSetChip(state.ingredients, value, chip);
+        // Selecting a suggestion: clear the search box so it's ready for the next ingredient.
+        if (chip.closest('#ingredientSuggestions')) {
+          document.getElementById('ingredientSearchInput').value = '';
+          renderIngredientSuggestions('');
+        }
+      } else if (kind === 'alcoholic') {
         state.alcoholic = value;
         document.querySelectorAll('#alcoholChips .chip').forEach((c) => c.classList.toggle('active', c.dataset.value === value));
       }
@@ -323,6 +341,21 @@ function wireEvents() {
       state.page = 1;
       render();
     }
+  });
+
+  const ingredientSearchInput = document.getElementById('ingredientSearchInput');
+  ingredientSearchInput.addEventListener(
+    'input',
+    debounce((e) => renderIngredientSuggestions(e.target.value.trim().toLowerCase()), 120)
+  );
+  ingredientSearchInput.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    document.querySelector('#ingredientSuggestions button')?.click();
+  });
+  ingredientSearchInput.addEventListener('blur', () => {
+    // Delay so a click on a suggestion registers before the dropdown disappears.
+    setTimeout(() => renderIngredientSuggestions(''), 150);
   });
 
   document.getElementById('filtersBody').addEventListener('change', (e) => {
@@ -374,6 +407,8 @@ function wireEvents() {
     document.getElementById('maxPrice').value = '';
     document.getElementById('pkgSelect').value = 'all';
     document.getElementById('sortSelect').value = 'relevance';
+    document.getElementById('ingredientSearchInput').value = '';
+    renderIngredientSuggestions('');
     document.querySelectorAll('.chip').forEach((c) => c.classList.remove('active'));
     document.querySelector('#alcoholChips .chip[data-value="all"]')?.classList.add('active');
     document.querySelectorAll('#venueList input[type="checkbox"]').forEach((cb) => (cb.checked = false));
@@ -429,17 +464,10 @@ function matchesFiltersExcept(item, except) {
   if (except !== 'types' && state.types.size && !state.types.has(item.type)) return false;
   if (except !== 'venueTypes' && state.venueTypes.size && !item.venues.some((v) => state.venueTypes.has(v.venueType))) return false;
   if (except !== 'venues' && state.venues.size && !item.venues.some((v) => state.venues.has(v.venue))) return false;
-  if (except !== 'ingredients' && state.ingredients.size) {
-    const ings = item.ingredients || [];
-    let any = false;
-    for (const wanted of state.ingredients) {
-      if (ings.some((ing) => ing.includes(wanted))) {
-        any = true;
-        break;
-      }
-    }
-    if (!any) return false;
-  }
+  // Ingredients are AND-within-group (select ginger, then mint -> drinks with BOTH), unlike
+  // every other facet here, because ingredients describe a single drink's composition: picking
+  // two ingredients is a recipe search ("has X and Y"), not "show me either category."
+  if (except !== 'ingredients' && state.ingredients.size && !hasAllIngredients(item, state.ingredients)) return false;
   if (except !== 'alcoholic') {
     if (state.alcoholic === 'yes' && !item.alcoholic) return false;
     if (state.alcoholic === 'no' && item.alcoholic) return false;
@@ -467,7 +495,6 @@ function updateFacetCounts() {
   const typeCounts = new Map();
   const venueTypeCounts = new Map();
   const venueCounts = new Map();
-  const ingredientCounts = new Map();
   let alcYes = 0, alcNo = 0, alcAll = 0;
   let pkgPlus = 0, pkgPremier = 0, pkgNone = 0, pkgAll = 0;
   let premiumCount = 0;
@@ -479,11 +506,6 @@ function updateFacetCounts() {
     }
     if (matchesFiltersExcept(item, 'venues')) {
       for (const v of item.venues) venueCounts.set(v.venue, (venueCounts.get(v.venue) || 0) + 1);
-    }
-    if (matchesFiltersExcept(item, 'ingredients')) {
-      for (const ing of FACET_OPTIONS.ingredients) {
-        if ((item.ingredients || []).some((x) => x.includes(ing))) ingredientCounts.set(ing, (ingredientCounts.get(ing) || 0) + 1);
-      }
     }
     if (matchesFiltersExcept(item, 'alcoholic')) {
       alcAll++;
@@ -505,7 +527,7 @@ function updateFacetCounts() {
   };
   document.querySelectorAll('#typeChips .chip').forEach((chip) => setCount(chip, typeCounts.get(chip.dataset.value)));
   document.querySelectorAll('#venueTypeChips .chip').forEach((chip) => setCount(chip, venueTypeCounts.get(chip.dataset.value)));
-  document.querySelectorAll('#ingredientChips .chip').forEach((chip) => setCount(chip, ingredientCounts.get(chip.dataset.value)));
+  renderIngredientFilters();
   document.querySelectorAll('#venueList label').forEach((label) => {
     const input = label.querySelector('input[type="checkbox"]');
     const span = label.querySelector('.count');
@@ -523,6 +545,61 @@ function updateFacetCounts() {
     pkgSelect.querySelector('option[value="premier"]').textContent = `Included with Premier (${pkgPremier.toLocaleString()})`;
     pkgSelect.querySelector('option[value="none"]').textContent = `Not included in a package (${pkgNone.toLocaleString()})`;
   }
+}
+
+// Rebuilds (not just re-counts) both ingredient rows: selected ingredients float to their own
+// row up top with a remove affordance, and the popular-picks row shows only the rest, each
+// counted as "how many drinks would match if I added this too" (AND-ed with what's already
+// selected and every other active filter).
+function renderIngredientFilters() {
+  const selected = [...state.ingredients];
+
+  const selectedRow = document.getElementById('selectedIngredientChips');
+  selectedRow.innerHTML = selected
+    .map(
+      (ing) =>
+        `<button class="chip active" data-kind="ingredient" data-value="${escapeHtml(ing)}" type="button">${escapeHtml(ing)} <span class="chip-x">&times;</span></button>`
+    )
+    .join('');
+
+  const popularRow = document.getElementById('ingredientChips');
+  const candidates = FACET_OPTIONS.ingredients.filter((ing) => !state.ingredients.has(ing));
+  popularRow.innerHTML = candidates
+    .map((ing) => {
+      const count = ALL_ITEMS.filter(
+        (item) => matchesFiltersExcept(item, 'ingredients') && hasAllIngredients(item, [...selected, ing])
+      ).length;
+      return `<button class="chip" data-kind="ingredient" data-value="${escapeHtml(ing)}" type="button">${escapeHtml(ing)} <span class="count">${count.toLocaleString()}</span></button>`;
+    })
+    .join('');
+}
+
+function renderIngredientSuggestions(query) {
+  const box = document.getElementById('ingredientSuggestions');
+  if (!query) {
+    box.hidden = true;
+    box.innerHTML = '';
+    return;
+  }
+  // Rank an exact match, then a prefix match, then shorter strings first — so searching "mint"
+  // surfaces plain "mint" before compound ingredients like "cucumber mint" that merely contain it.
+  const matches = ALL_INGREDIENTS.filter((ing) => ing.includes(query) && !state.ingredients.has(ing))
+    .sort((a, b) => {
+      if ((a === query) !== (b === query)) return a === query ? -1 : 1;
+      if (a.startsWith(query) !== b.startsWith(query)) return a.startsWith(query) ? -1 : 1;
+      if (a.length !== b.length) return a.length - b.length;
+      return a.localeCompare(b);
+    })
+    .slice(0, 10);
+  if (!matches.length) {
+    box.hidden = true;
+    box.innerHTML = '';
+    return;
+  }
+  box.hidden = false;
+  box.innerHTML = matches
+    .map((ing) => `<button type="button" data-kind="ingredient" data-value="${escapeHtml(ing)}">${escapeHtml(ing)}</button>`)
+    .join('');
 }
 
 function sortItems(items) {
