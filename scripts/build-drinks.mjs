@@ -124,8 +124,17 @@ function main() {
       warnings.push(`Skipped item with missing name/venueSlug in ${item._batch}: ${JSON.stringify(item).slice(0, 120)}`);
       continue;
     }
-    const type = VALID_TYPES.has(item.type) ? item.type : 'other';
+    let type = VALID_TYPES.has(item.type) ? item.type : 'other';
     if (type !== item.type) warnings.push(`${item._batch}: unrecognized type "${item.type}" on "${item.name}" -> coerced to "other"`);
+
+    const alcoholic = item.alcoholic !== false;
+    // `type` is "which menu shelf it's on," not "does it contain coffee": an Irish coffee or
+    // espresso martini is a cocktail that happens to use coffee, same shelf as any other mixed
+    // drink. Reserve "coffee" for the non-alcoholic coffee-shop order. Enforced here (not left
+    // to each transcription batch's judgment) so it can't drift on a re-transcription, and so
+    // the same drink transcribed as "coffee" by one batch and "cocktail" by another still
+    // matches on `type` during cross-venue grouping.
+    if (type === 'coffee' && alcoholic) type = 'cocktail';
 
     const price = coerceNumber(item.price);
     const priceBottle = coerceNumber(item.priceBottle);
@@ -148,7 +157,7 @@ function main() {
       priceText: item.priceText || (price !== null ? `$${price.toFixed(2)}` : null),
       priceBottle,
       premium: Boolean(item.premium),
-      alcoholic: item.alcoholic !== false,
+      alcoholic,
       region: item.region || null,
       notes: item.notes || null,
       sourceImage: item.sourceImage || null,

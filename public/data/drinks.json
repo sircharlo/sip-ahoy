@@ -2165,7 +2165,7 @@
         "sourceImage": "images/princess-omalleys-irish-pub-drink-menu-01.webp"
       }
     ],
-    "type": "coffee",
+    "type": "cocktail",
     "category": "Irish Coffee",
     "description": "Banana-Infused Irish coffee twist with Jameson Irish Whiskey",
     "ingredients": [
@@ -6872,7 +6872,7 @@
         "sourceImage": "images/princess-omalleys-irish-pub-drink-menu-01.webp"
       }
     ],
-    "type": "coffee",
+    "type": "cocktail",
     "category": "Irish Coffee",
     "description": "Jameson Irish Whiskey, Coffee, Whipped Cream",
     "ingredients": [
@@ -12838,7 +12838,7 @@
         "sourceImage": "images/princess-omalleys-irish-pub-drink-menu-01.webp"
       }
     ],
-    "type": "coffee",
+    "type": "cocktail",
     "category": "Irish Coffee",
     "description": "Grace O'Malley's Whiskey, Coffee, Whipped Cream",
     "ingredients": [
@@ -27924,7 +27924,7 @@
         "sourceImage": "images/princess-omalleys-irish-pub-drink-menu-01.webp"
       }
     ],
-    "type": "coffee",
+    "type": "cocktail",
     "category": "Irish Coffee",
     "description": "Sláinte Irish Whiskey, Coffee, Whipped Cream",
     "ingredients": [
