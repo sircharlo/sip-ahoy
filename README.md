@@ -17,7 +17,7 @@ The data was built by scraping the menu photos published at [shinecruise.com/pri
 scripts/fetch-menus.mjs   scrapes the source page, downloads full-res menu photos into public/data/images/
 data/extracted/*.json     raw per-batch vision transcriptions (one JSON array of drink items per batch)
 scripts/build-drinks.mjs  merges data/extracted/*.json into public/data/drinks.json (validated, de-duplicated, id'd)
-public/data/              served as-is by Vite/Pages: drinks.json, sources.json, images/
+public/data/              served as-is by Vite/Pages: drinks.json, ships.json, sources.json, images/
 src/                      the app itself (vanilla JS + CSS, no framework)
 ```
 

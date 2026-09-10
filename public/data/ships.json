@@ -1,0 +1,263 @@
+{
+  "_comment": "Venue -> ship availability for the Princess Cruises fleet. Researched 2026-09 from official Princess.com cruise-dining 'Available on' lists, ship fact sheets, and ship pages. Venue lineups change with refits — confirm onboard. Venue keys here MUST exactly match venue names in drinks.json. Ships use short names without the ' Princess' suffix in code; full names listed under ships[].",
+  "updated": "2026-09-10",
+  "sources": [
+    "https://www.princess.com/cruise-dining (per-venue 'Available on' lists)",
+    "https://www.princess.com/ships-and-experience/ships (per-ship restaurants & bars)",
+    "https://www.princess.com/en-uk/news/backgrounders-and-fact-sheets/sun-princess-fact-sheet",
+    "https://www.princess.com/en-uk/news/backgrounders-and-fact-sheets/discovery-princess-fact-sheet",
+    "https://eatsleepcruise.com/star-princess-bars-menus-drink-prices/"
+  ],
+  "ships": [
+    { "id": "sun", "name": "Sun Princess", "class": "Sphere", "enteredService": 2024 },
+    { "id": "star", "name": "Star Princess", "class": "Sphere", "enteredService": 2025 },
+    { "id": "discovery", "name": "Discovery Princess", "class": "Royal", "enteredService": 2022 },
+    { "id": "enchanted", "name": "Enchanted Princess", "class": "Royal", "enteredService": 2020 },
+    { "id": "sky", "name": "Sky Princess", "class": "Royal", "enteredService": 2019 },
+    { "id": "majestic", "name": "Majestic Princess", "class": "Royal", "enteredService": 2017 },
+    { "id": "regal", "name": "Regal Princess", "class": "Royal", "enteredService": 2014 },
+    { "id": "royal", "name": "Royal Princess", "class": "Royal", "enteredService": 2013 },
+    { "id": "ruby", "name": "Ruby Princess", "class": "Grand", "enteredService": 2008 },
+    { "id": "emerald", "name": "Emerald Princess", "class": "Grand", "enteredService": 2007 },
+    { "id": "crown", "name": "Crown Princess", "class": "Grand", "enteredService": 2006 },
+    { "id": "caribbean", "name": "Caribbean Princess", "class": "Grand", "enteredService": 2004 },
+    { "id": "sapphire", "name": "Sapphire Princess", "class": "Grand", "enteredService": 2004 },
+    { "id": "diamond", "name": "Diamond Princess", "class": "Grand", "enteredService": 2004 },
+    { "id": "island", "name": "Island Princess", "class": "Coral", "enteredService": 2003 },
+    { "id": "coral", "name": "Coral Princess", "class": "Coral", "enteredService": 2002 },
+    { "id": "grand", "name": "Grand Princess", "class": "Grand", "enteredService": 1998 }
+  ],
+  "venues": {
+    "Alfredo's Pizzeria": {
+      "dining": "casual",
+      "ships": ["Coral Princess", "Diamond Princess", "Discovery Princess", "Enchanted Princess", "Grand Princess", "Island Princess", "Majestic Princess", "Regal Princess", "Royal Princess", "Sapphire Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/alfredo-gigis overview (same concept sails as Gigi's Pizzeria on some ships)",
+      "note": "Not on Caribbean, Crown, Emerald, Ruby."
+    },
+    "Bellini's Cocktail Bar": {
+      "dining": "bars",
+      "ships": ["Coral Princess", "Discovery Princess", "Enchanted Princess", "Regal Princess", "Royal Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/bellinis 'Available on' list",
+      "note": null
+    },
+    "Butcher's Block": {
+      "dining": "specialty",
+      "ships": ["Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/butchers-block-dario; Apr-2026 Princess press release",
+      "note": "Sphere-class exclusive (The Butcher's Block by Dario)."
+    },
+    "Cascades Bar": {
+      "dining": "bars",
+      "ships": ["Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "Star/Sun fact sheets + ship bar guides (Cascade Bar in The Dome, Deck 17)",
+      "note": "Sphere-class only; no official cruise-dining page."
+    },
+    "Catch by Rudi": {
+      "dining": "specialty",
+      "ships": ["Discovery Princess", "Enchanted Princess", "Majestic Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/the-catch-by-rudi",
+      "note": null
+    },
+    "Churrascaria Brazilian Grill": {
+      "dining": "specialty",
+      "ships": ["Diamond Princess", "Sapphire Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/churrascaria + specialty-restaurants listing",
+      "note": "Japan-based ships."
+    },
+    "Coffee & Cones": {
+      "dining": "bars",
+      "ships": ["Caribbean Princess", "Crown Princess", "Emerald Princess", "Grand Princess", "Ruby Princess"],
+      "confidence": "medium",
+      "source": "Princess eFlyer dining-venues list + Crown/Ruby ship pages (no dedicated cruise-dining page)",
+      "note": "Top-deck creamery on older Grand-class ships; Sun/Star have it as a complimentary venue but listed separately."
+    },
+    "Coffee Currents": {
+      "dining": "bars",
+      "ships": ["Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "Sun Princess fact sheet (Coffee Currents, capacity 55) + Star/Sun bar guides",
+      "note": "Second coffee shop on Sphere-class ships (Deck 7); no dedicated cruise-dining page."
+    },
+    "Crab Shack": {
+      "dining": "casual",
+      "ships": ["Caribbean Princess", "Coral Princess", "Crown Princess", "Diamond Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Grand Princess", "Island Princess", "Majestic Princess", "Regal Princess", "Royal Princess", "Ruby Princess", "Sapphire Princess", "Sky Princess", "Star Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/crab-shack (all except Sun Princess; pop-up in World Fresh Marketplace on select ships)",
+      "note": "Not on Sun Princess."
+    },
+    "Crooners Bar": {
+      "dining": "bars",
+      "ships": ["Caribbean Princess", "Coral Princess", "Crown Princess", "Diamond Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Grand Princess", "Island Princess", "Regal Princess", "Royal Princess", "Ruby Princess", "Sapphire Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "medium",
+      "source": "princess.com/cruise-dining/crooners (13 older ships) + Sun fact sheet + Star ship page + Sky deck plans (Sphere/Royal-class listings post-date the dining page)",
+      "note": "Not on Majestic Princess (removed in 2025 refit per Cruise Critic activities listing)."
+    },
+    "Crown Grill": {
+      "dining": "specialty",
+      "ships": ["Caribbean Princess", "Coral Princess", "Crown Princess", "Diamond Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Grand Princess", "Island Princess", "Majestic Princess", "Regal Princess", "Royal Princess", "Ruby Princess", "Sapphire Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/crown-grill 'Available on every ship' + Jan-2026 Diamond / Oct-2025 Sapphire additions",
+      "note": "Fleetwide."
+    },
+    "Gelato & Gelateria": {
+      "dining": "bars",
+      "ships": ["Discovery Princess", "Enchanted Princess", "Regal Princess", "Royal Princess", "Sky Princess", "Sun Princess"],
+      "confidence": "medium",
+      "source": "princess.com/cruise-dining/gelato-gelateria (Gelato on Discovery/Regal/Royal/Sky; Gelateria on Enchanted/Sun)",
+      "note": "Same concept, two names."
+    },
+    "Good Spirits at Sea": {
+      "dining": "bars",
+      "ships": ["Caribbean Princess", "Coral Princess", "Crown Princess", "Diamond Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Grand Princess", "Island Princess", "Majestic Princess", "Regal Princess", "Royal Princess", "Ruby Princess", "Sapphire Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/good-spirits-at-sea 'Available on every ship'",
+      "note": "Fleetwide."
+    },
+    "International Cafe": {
+      "dining": "included",
+      "ships": ["Caribbean Princess", "Coral Princess", "Crown Princess", "Diamond Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Grand Princess", "Majestic Princess", "Regal Princess", "Royal Princess", "Ruby Princess", "Sapphire Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "medium",
+      "source": "princess.com/cruise-dining/international-cafe meta/JSON-LD (16 ships; Island Princess omitted everywhere)",
+      "note": "Near-fleetwide; Island Princess not listed."
+    },
+    "Kai Sushi": {
+      "dining": "casual",
+      "ships": ["Diamond Princess"],
+      "confidence": "high",
+      "source": "Princess eFlyer dining-venues PDF ('Kai Sushi - Diamond Princess') + Diamond ship page (no US cruise-dining page)",
+      "note": "Diamond Princess exclusive."
+    },
+    "LARA Juice Bar": {
+      "dining": "included",
+      "ships": ["Caribbean Princess", "Coral Princess", "Crown Princess", "Diamond Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Grand Princess", "Island Princess", "Majestic Princess", "Regal Princess", "Royal Princess", "Ruby Princess", "Sapphire Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "low",
+      "source": "No cruise-dining page; juice bars are ad-hoc (Wake View / Ocean Terrace juice bars, Majestic juice bar per Cruise Critic). Mapped fleetwide so ship filtering never wrongly hides these drinks — confirm onboard.",
+      "note": "Uncertain — treated as available everywhere."
+    },
+    "Love by Britto": {
+      "dining": "specialty",
+      "ships": ["Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/love-by-britto; Jun-2024 press (opened on Sun); Sun/Star fact sheets",
+      "note": "Sphere-class exclusive."
+    },
+    "Main Dining Room": {
+      "dining": "included",
+      "ships": ["Caribbean Princess", "Coral Princess", "Crown Princess", "Diamond Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Grand Princess", "Island Princess", "Majestic Princess", "Regal Princess", "Royal Princess", "Ruby Princess", "Sapphire Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/main-dining-room 'Available on every ship'",
+      "note": "Fleetwide."
+    },
+    "Makoto Ocean": {
+      "dining": "specialty",
+      "ships": ["Diamond Princess", "Sapphire Princess", "Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/makoto-ocean; Apr-2026 press (Star, Sun, Diamond, Sapphire); Fall-2025 Diamond/Sapphire expansion",
+      "note": null
+    },
+    "O'Malley's Irish Pub": {
+      "dining": "casual",
+      "ships": ["Crown Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Majestic Princess", "Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/omalleys 'Available on' cards (replaced Vines on Majestic in 2025 refit)",
+      "note": null
+    },
+    "Ocean Terrace Sushi": {
+      "dining": "casual",
+      "ships": ["Discovery Princess", "Enchanted Princess", "Majestic Princess", "Regal Princess", "Royal Princess", "Sky Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/ocean-terrace-sushi",
+      "note": "Royal-class sushi/seafood bar."
+    },
+    "Plank's BBQ": {
+      "dining": "casual",
+      "ships": ["Caribbean Princess", "Emerald Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/planks-bbq",
+      "note": null
+    },
+    "Princess Live!": {
+      "dining": "bars",
+      "ships": ["Discovery Princess", "Enchanted Princess", "Majestic Princess", "Regal Princess", "Royal Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/princess-live",
+      "note": "Royal/Sphere-class entertainment venue & cafe."
+    },
+    "Sabatini's Italian Trattoria": {
+      "dining": "specialty",
+      "ships": ["Caribbean Princess", "Coral Princess", "Crown Princess", "Diamond Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Grand Princess", "Island Princess", "Majestic Princess", "Regal Princess", "Royal Princess", "Ruby Princess", "Sapphire Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/sabatinis-italian-trattoria 'Now available fleetwide'",
+      "note": "Fleetwide."
+    },
+    "Salty Dog Gastropub": {
+      "dining": "casual",
+      "ships": ["Caribbean Princess", "Coral Princess", "Crown Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Grand Princess", "Island Princess", "Majestic Princess", "Ruby Princess", "Sapphire Princess", "Sky Princess"],
+      "confidence": "medium",
+      "source": "princess.com/cruise-dining/salty-dog-cafe 'Available on' tiles (dining page titled Salty Dog Cafe)",
+      "note": "Dedicated pub on some ships, pop-up elsewhere; not on Diamond, Regal, Royal, Sun, Star."
+    },
+    "Spellbound Bar": {
+      "dining": "bars",
+      "ships": ["Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/spellbound + Aug-2025 Star press release (Spellbound by Magic Castle)",
+      "note": "Sphere-class exclusive ticketed experience."
+    },
+    "Standard Bar": {
+      "dining": "bars",
+      "ships": ["Caribbean Princess", "Coral Princess", "Crown Princess", "Diamond Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Grand Princess", "Island Princess", "Majestic Princess", "Regal Princess", "Royal Princess", "Ruby Princess", "Sapphire Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "Generic fleetwide standard cocktail/beer/wine/spirits menus (no single cruise-dining page; every ship sails standard bars)",
+      "note": "Fleetwide staple."
+    },
+    "The MIX": {
+      "dining": "bars",
+      "ships": ["Caribbean Princess", "Crown Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Grand Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/the-mix",
+      "note": "Poolside bar."
+    },
+    "The Sanctuary": {
+      "dining": "included",
+      "ships": ["Caribbean Princess", "Coral Princess", "Crown Princess", "Diamond Princess", "Discovery Princess", "Emerald Princess", "Enchanted Princess", "Grand Princess", "Island Princess", "Majestic Princess", "Regal Princess", "Royal Princess", "Ruby Princess", "Sapphire Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "medium",
+      "source": "The Sanctuary adults retreat is fleetwide (Cruise Critic: all 17); Sanctuary Restaurant is Sun/Star-only. Mapped fleetwide so ship filtering never wrongly hides these drinks.",
+      "note": "Fleetwide concept; Sun/Star version is the Sanctuary Collection restaurant."
+    },
+    "Umai Teppanyaki": {
+      "dining": "specialty",
+      "ships": ["Star Princess", "Sun Princess"],
+      "confidence": "high",
+      "source": "princess.com/cruise-dining/umai-teppanyaki + Sun/Star fact sheets (Umai Hot Pot shares the venue)",
+      "note": "Sphere-class exclusive; covers both Umai Teppanyaki and Umai Hot Pot menus."
+    },
+    "Vines Wine Bar": {
+      "dining": "bars",
+      "ships": ["Caribbean Princess", "Crown Princess", "Emerald Princess", "Grand Princess", "Regal Princess", "Royal Princess", "Ruby Princess", "Sapphire Princess", "Sky Princess"],
+      "confidence": "medium",
+      "source": "princess.com/cruise-dining/vines-wines-bar + DE site listing (Majestic's Vines replaced by O'Malley's in 2025 refit)",
+      "note": "Not on Sun, Star, Diamond, Majestic, Coral, Discovery, Enchanted, Island."
+    },
+    "Wake View Bar": {
+      "dining": "bars",
+      "ships": ["Diamond Princess", "Discovery Princess", "Enchanted Princess", "Majestic Princess", "Sapphire Princess", "Sky Princess", "Star Princess", "Sun Princess"],
+      "confidence": "medium",
+      "source": "princess.com/cruise-dining/wake-view cards (7) + Star/Sun aft-bar coverage (Star added; page 'Find cruises' filter is stale)",
+      "note": "Aft adults-oriented bar."
+    },
+    "Wheelhouse Bar": {
+      "dining": "bars",
+      "ships": ["Caribbean Princess", "Coral Princess", "Crown Princess", "Diamond Princess", "Grand Princess", "Island Princess", "Regal Princess", "Royal Princess", "Ruby Princess", "Sapphire Princess", "Star Princess", "Sun Princess"],
+      "confidence": "medium",
+      "source": "princess.com/cruise-dining/wheelhouse-bar",
+      "note": "Not on Discovery, Enchanted, Majestic, Sky, Emerald per dining page (names vary by ship)."
+    }
+  }
+}

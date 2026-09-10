@@ -354,6 +354,31 @@ a:focus-visible {
   font-weight: 600;
 }
 
+/* Ship filter: venues that don't sail on the selected ship stay listed (so the
+   lineup stays recognizable) but are dimmed and not selectable. */
+.venue-list label.venue-unavailable {
+  opacity: 0.45;
+}
+.venue-list label.venue-unavailable:hover {
+  background: none;
+}
+
+.ship-note {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.badge.ship {
+  color: var(--nonalcoholic);
+  border-color: var(--nonalcoholic);
+}
+
+.card__venue button.venue-offship {
+  text-decoration: line-through dotted;
+  opacity: 0.6;
+}
+
 .venue-list .count,
 .chip .count {
   color: var(--text-dim);

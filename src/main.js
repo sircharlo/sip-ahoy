@@ -2,6 +2,11 @@ import './style.css';
 import { registerSW } from 'virtual:pwa-register';
 
 const DATA_URL = 'data/drinks.json';
+const SHIPS_URL = 'data/ships.json';
+// localStorage persists across sessions and survives PWA installs (same origin,
+// same profile) — unlike in-memory state or sessionStorage. Wrapped in try/catch
+// everywhere because private-mode browsers can throw on access.
+const SHIP_STORAGE_KEY = 'sip-ahoy-ship';
 const PAGE_SIZE = 60;
 // Where "report an issue" files a prepopulated GitHub issue against.
 const GITHUB_REPO = 'sircharlo/sip-ahoy';
@@ -22,6 +27,8 @@ const TYPE_LABELS = {
 
 const state = {
   query: '',
+  ship: 'all', // ship name from ships.json, or 'all'
+  dining: new Set(), // dining categories from DINING_LABELS; empty = all
   types: new Set(),
   venueTypes: new Set(),
   venues: new Set(),
@@ -36,6 +43,87 @@ const state = {
 
 let ALL_ITEMS = [];
 let ITEMS_BY_ID = new Map();
+// Venue name -> Set of ship names (from ships.json). Empty map = no ship data
+// loaded; every venue then counts as available everywhere (fail-open).
+let VENUE_SHIPS = new Map();
+let SHIP_LIST = [];
+// Venue name -> dining category from ships.json: 'included' (complimentary, no
+// cover), 'casual' ($14.99 cover, Plus/Premier perks), 'specialty' (cover +
+// reservation), 'bars' (bars, lounges & cafés — drinks only, no dining cover).
+let VENUE_DINING = new Map();
+const DINING_ORDER = ['included', 'casual', 'specialty', 'bars'];
+const DINING_LABELS = {
+  included: 'Included',
+  casual: 'Casual',
+  specialty: 'Specialty',
+  bars: 'Bars & cafés',
+};
+const DINING_STORAGE_KEY = 'sip-ahoy-dining';
+
+function loadStoredShip() {
+  try {
+    return localStorage.getItem(SHIP_STORAGE_KEY) || 'all';
+  } catch {
+    return 'all';
+  }
+}
+
+function storeShip(ship) {
+  try {
+    if (ship && ship !== 'all') localStorage.setItem(SHIP_STORAGE_KEY, ship);
+    else localStorage.removeItem(SHIP_STORAGE_KEY);
+  } catch {
+    // Private mode / disabled storage: ship filter still works for the session.
+  }
+}
+
+function loadStoredDining() {
+  try {
+    const raw = localStorage.getItem(DINING_STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set((Array.isArray(arr) ? arr : []).filter((d) => DINING_LABELS[d]));
+  } catch {
+    return new Set();
+  }
+}
+
+function storeDining(set) {
+  try {
+    if (set.size) localStorage.setItem(DINING_STORAGE_KEY, JSON.stringify([...set]));
+    else localStorage.removeItem(DINING_STORAGE_KEY);
+  } catch {
+    // Private mode: dining filter still works for the session.
+  }
+}
+
+function venueDining(venueName) {
+  return VENUE_DINING.get(venueName) || null;
+}
+
+function diningTitle(d) {
+  return (
+    {
+      included: 'Complimentary venues — no cover charge',
+      casual: 'Casual dining — ~$14.99 cover, Plus/Premier perks apply',
+      specialty: 'Specialty restaurants — cover charge + reservation',
+      bars: 'Bars, lounges & cafés — drinks only, no dining cover',
+    }[d] || ''
+  );
+}
+
+function venueHasShip(venueName, ship) {
+  if (!ship || ship === 'all') return true;
+  const ships = VENUE_SHIPS.get(venueName);
+  // Unknown venue (not in ships.json): fail open so we never wrongly hide drinks.
+  if (!ships) return true;
+  return ships.has(ship);
+}
+
+function itemHasShip(item, ship) {
+  if (!ship || ship === 'all') return true;
+  return item.venues.some((v) => venueHasShip(v.venue, ship));
+}
 let dataMinPrice = 0;
 let dataMaxPrice = 100;
 // Stable filter option lists, computed once from the full dataset — only their counts
@@ -129,6 +217,31 @@ async function init() {
     results.innerHTML = `<div class="empty-state">Couldn't load drink data (${escapeHtml(err.message)}).<br>Make sure <code>data/drinks.json</code> exists.</div>`;
     return;
   }
+
+  // Ship/venue mapping is best-effort data — the drink list must work even if it
+  // fails to load (e.g. older cached PWA shell). Fail open: no mapping = no ship filtering.
+  try {
+    const res = await fetch(SHIPS_URL);
+    if (res.ok) {
+      const shipData = await res.json();
+      SHIP_LIST = (shipData.ships || []).map((s) => s.name);
+      VENUE_SHIPS = new Map(
+        Object.entries(shipData.venues || {}).map(([venue, meta]) => [venue, new Set(meta.ships || [])])
+      );
+      VENUE_DINING = new Map(
+        Object.entries(shipData.venues || {})
+          .filter(([, meta]) => meta.dining && DINING_LABELS[meta.dining])
+          .map(([venue, meta]) => [venue, meta.dining])
+      );
+    }
+  } catch {
+    // Keep VENUE_SHIPS empty -> itemHasShip() returns true for everything.
+  }
+
+  // Restore the remembered ship (validated against the loaded list).
+  const stored = loadStoredShip();
+  state.ship = stored !== 'all' && (SHIP_LIST.length === 0 || SHIP_LIST.includes(stored)) ? stored : 'all';
+  state.dining = loadStoredDining();
 
   ALL_ITEMS = items.map((item, i) => ({
     ...item,
@@ -224,6 +337,13 @@ function buildFilters(items) {
 
   const body = document.getElementById('filtersBody');
   body.innerHTML = `
+    <h2>Your ship</h2>
+    <select id="shipSelect" aria-label="Filter by ship">
+      <option value="all">All ships</option>
+      ${SHIP_LIST.map((s) => `<option value="${escapeHtml(s)}"${s === state.ship ? ' selected' : ''}>${escapeHtml(s)}</option>`).join('')}
+    </select>
+    <div class="ship-note">Remembered on this device, even offline.</div>
+
     <h2>Drink type</h2>
     <div class="chip-row" id="typeChips">
       ${sortedTypes
@@ -255,6 +375,14 @@ function buildFilters(items) {
       <option value="premier">Included with Premier</option>
       <option value="none">Not included in a package</option>
     </select>
+
+    <h2>Dining category</h2>
+    <div class="chip-row" id="diningChips">
+      ${DINING_ORDER.map(
+        (d) =>
+          `<button class="chip${state.dining.has(d) ? ' active' : ''}" data-kind="dining" data-value="${d}" type="button" title="${diningTitle(d)}">${DINING_LABELS[d]} <span class="count"></span></button>`
+      ).join('')}
+    </div>
 
     <h2>Venue type</h2>
     <div class="chip-row" id="venueTypeChips">
@@ -314,6 +442,10 @@ function wireEvents() {
       const { kind, value } = chip.dataset;
       if (kind === 'type') toggleSetChip(state.types, value, chip);
       else if (kind === 'venueType') toggleSetChip(state.venueTypes, value, chip);
+      else if (kind === 'dining') {
+        toggleSetChip(state.dining, value, chip);
+        storeDining(state.dining);
+      }
       else if (kind === 'ingredient') {
         toggleSetChip(state.ingredients, value, chip);
         // Selecting a suggestion: clear the search box so it's ready for the next ingredient.
@@ -349,6 +481,20 @@ function wireEvents() {
     if (e.target.matches('[data-kind="venue"]')) {
       if (e.target.checked) state.venues.add(e.target.value);
       else state.venues.delete(e.target.value);
+      state.page = 1;
+      render();
+    }
+    if (e.target.id === 'shipSelect') {
+      state.ship = e.target.value;
+      storeShip(state.ship);
+      // Venues unavailable on the new ship can't stay selected — they'd
+      // zero out the results with no visible cause.
+      for (const v of [...state.venues]) {
+        if (!venueHasShip(v, state.ship)) state.venues.delete(v);
+      }
+      document.querySelectorAll('#venueList input[type="checkbox"]').forEach((cb) => {
+        if (!venueHasShip(cb.value, state.ship)) cb.checked = false;
+      });
       state.page = 1;
       render();
     }
@@ -410,7 +556,11 @@ function wireEvents() {
 
 function resetFilters() {
   state.query = '';
+  // NOTE: state.ship is intentionally preserved — it's the sailing context, not a
+  // filter, and it's remembered across sessions via localStorage.
   state.types.clear();
+  state.dining.clear();
+  storeDining(state.dining);
   state.venueTypes.clear();
   state.venues.clear();
   state.ingredients.clear();
@@ -447,6 +597,18 @@ function toggleSetChip(set, value, chipEl) {
 // match if I also picked option X in dimension D" — i.e. all filters EXCEPT D itself. Used both
 // for the real result set (except: null) and for live per-option facet counts.
 function matchesFiltersExcept(item, except) {
+  if (except !== 'ship' && state.ship !== 'all' && !itemHasShip(item, state.ship)) return false;
+  // Dining category is a property of the venue, not the drink: a drink matches if ANY
+  // of its venues is in a selected category (venues with unknown category fail open).
+  if (
+    except !== 'dining' &&
+    state.dining.size &&
+    !item.venues.some((v) => {
+      const d = venueDining(v.venue);
+      return d === null || state.dining.has(d);
+    })
+  )
+    return false;
   if (except !== 'query' && state.query) {
     const words = state.query.split(/\s+/).filter(Boolean);
     if (!words.every((w) => item._search.includes(w))) return false;
@@ -482,6 +644,7 @@ function matchesFilters(item) {
 
 function updateFacetCounts() {
   const typeCounts = new Map();
+  const diningCounts = new Map();
   const venueTypeCounts = new Map();
   const venueCounts = new Map();
   let alcYes = 0, alcNo = 0, alcAll = 0;
@@ -489,6 +652,12 @@ function updateFacetCounts() {
 
   for (const item of ALL_ITEMS) {
     if (matchesFiltersExcept(item, 'types')) typeCounts.set(item.type, (typeCounts.get(item.type) || 0) + 1);
+    if (matchesFiltersExcept(item, 'dining')) {
+      for (const v of item.venues) {
+        const d = venueDining(v.venue);
+        if (d) diningCounts.set(d, (diningCounts.get(d) || 0) + 1);
+      }
+    }
     if (matchesFiltersExcept(item, 'venueTypes')) {
       for (const v of item.venues) venueTypeCounts.set(v.venueType, (venueTypeCounts.get(v.venueType) || 0) + 1);
     }
@@ -513,12 +682,22 @@ function updateFacetCounts() {
     if (span) span.textContent = (n || 0).toLocaleString();
   };
   document.querySelectorAll('#typeChips .chip').forEach((chip) => setCount(chip, typeCounts.get(chip.dataset.value)));
+  document.querySelectorAll('#diningChips .chip').forEach((chip) => setCount(chip, diningCounts.get(chip.dataset.value)));
   document.querySelectorAll('#venueTypeChips .chip').forEach((chip) => setCount(chip, venueTypeCounts.get(chip.dataset.value)));
   renderIngredientFilters();
   document.querySelectorAll('#venueList label').forEach((label) => {
     const input = label.querySelector('input[type="checkbox"]');
     const span = label.querySelector('.count');
     if (input && span) span.textContent = (venueCounts.get(input.value) || 0).toLocaleString();
+    // When a ship is picked, venues it doesn't sail on are dimmed and disabled so
+    // it's obvious why they contribute zero results — but their names stay visible.
+    if (input) {
+      const available = venueHasShip(input.value, state.ship);
+      label.classList.toggle('venue-unavailable', !available);
+      input.disabled = !available;
+      if (!available) input.checked = false;
+      label.title = available ? '' : `Not on ${state.ship}`;
+    }
   });
   setCount(document.querySelector('#alcoholChips .chip[data-value="all"]'), alcAll);
   setCount(document.querySelector('#alcoholChips .chip[data-value="yes"]'), alcYes);
@@ -623,13 +802,20 @@ function cardHtml(item) {
   if (item.package === 'plus') badges.push(`<span class="badge plus">Princess Plus</span>`);
   if (item.package === 'premier') badges.push(`<span class="badge premier">Princess Premier</span>`);
   if (item.region) badges.push(`<span class="badge">${escapeHtml(item.region)} only</span>`);
+  if (state.ship !== 'all') {
+    const onShip = item.venues.filter((v) => venueHasShip(v.venue, state.ship)).map((v) => v.venue);
+    if (onShip.length) badges.push(`<span class="badge ship">✓ ${escapeHtml(state.ship)}</span>`);
+  }
 
   const venueLinks = item.venues
     .map((v) => {
       const imgUrl = `data/${v.sourceImage}`;
       const caption = `${v.venue} — ${item.category || ''}`;
+      const onShip = venueHasShip(v.venue, state.ship);
       const label = `View menu photo from ${v.venue}`;
-      return `<button type="button" data-view-image="${escapeHtml(imgUrl)}" data-view-caption="${escapeHtml(caption)}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">${escapeHtml(v.venue)}</button>`;
+      const cls = state.ship !== 'all' && !onShip ? ' class="venue-offship"' : '';
+      const title = state.ship !== 'all' && !onShip ? ` title="Not on ${escapeHtml(state.ship)}"` : ` title="${escapeHtml(label)}"`;
+      return `<button type="button"${cls}${title} data-view-image="${escapeHtml(imgUrl)}" data-view-caption="${escapeHtml(caption)}" aria-label="${escapeHtml(label)}">${escapeHtml(v.venue)}</button>`;
     })
     .join(', ');
 
@@ -659,7 +845,10 @@ function render() {
   const visible = sorted.slice(0, state.page * PAGE_SIZE);
 
   const countEl = document.getElementById('resultCount');
-  countEl.textContent = `${filtered.length.toLocaleString()} of ${ALL_ITEMS.length.toLocaleString()} drinks`;
+  countEl.textContent =
+    state.ship === 'all'
+      ? `${filtered.length.toLocaleString()} of ${ALL_ITEMS.length.toLocaleString()} drinks`
+      : `${filtered.length.toLocaleString()} of ${ALL_ITEMS.length.toLocaleString()} drinks · on ${state.ship}`;
 
   updateFacetCounts();
 
