@@ -114,7 +114,8 @@ button {
   right: 0;
   bottom: 0;
   height: 8px;
-  background: linear-gradient(90deg, var(--accent), var(--sunset-soft));
+  background: linear-gradient(90deg, var(--accent), var(--sunset-soft), var(--accent));
+  background-size: 200% 100%;
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='8' viewBox='0 0 40 8'%3E%3Cpath d='M0 4 Q10 -2 20 4 T40 4 V8 H0 Z'/%3E%3C/svg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='8' viewBox='0 0 40 8'%3E%3Cpath d='M0 4 Q10 -2 20 4 T40 4 V8 H0 Z'/%3E%3C/svg%3E");
   -webkit-mask-repeat: repeat-x;
@@ -122,6 +123,59 @@ button {
   -webkit-mask-size: 40px 8px;
   mask-size: 40px 8px;
   pointer-events: none;
+}
+
+/* A second, larger swell drifting the opposite way behind the front wave, so the
+   header reads as two layers of water sliding past each other (parallax). The tile
+   widths (40px / 64px) match the keyframe travel distances exactly, so both loops
+   are seamless. Cheap to render: a tiny 12px strip, mask-position only. */
+.app-header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 12px;
+  opacity: 0.3;
+  background: linear-gradient(90deg, var(--sunset-soft), var(--accent));
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='12' viewBox='0 0 64 12'%3E%3Cpath d='M0 6 Q16 -2 32 6 T64 6 V12 H0 Z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='12' viewBox='0 0 64 12'%3E%3Cpath d='M0 6 Q16 -2 32 6 T64 6 V12 H0 Z'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+  -webkit-mask-size: 64px 12px;
+  mask-size: 64px 12px;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .app-header::after {
+    animation:
+      wave-drift-front 7s linear infinite,
+      wave-shimmer 10s ease-in-out infinite alternate;
+  }
+  .app-header::before {
+    animation: wave-drift-back 12s linear infinite;
+  }
+}
+
+@keyframes wave-drift-front {
+  from { -webkit-mask-position: 0 0; mask-position: 0 0; }
+  to { -webkit-mask-position: 40px 0; mask-position: 40px 0; }
+}
+
+@keyframes wave-drift-back {
+  from { -webkit-mask-position: 0 0; mask-position: 0 0; }
+  to { -webkit-mask-position: -64px 0; mask-position: -64px 0; }
+}
+
+@keyframes wave-shimmer {
+  from { background-position: 0% 0; }
+  to { background-position: 100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-header::before { display: none; }
+  .app-header::after { animation: none; }
 }
 
 .app-header__top {
